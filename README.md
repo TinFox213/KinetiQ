@@ -102,11 +102,28 @@ Execution completes in under 12 seconds with 100% test pass rate.
 
 ---
 
+## 🚀 Deploy to Vercel
+
+KinetiQ is configured for turnkey deployment to Vercel Serverless Functions and Edge CDN:
+
+1. **Import Repository**: Connect `https://github.com/TinFox213/KinetiQ.git` in your Vercel Dashboard.
+2. **Environment Variables**:
+   - `GEMINI_API_KEY`: *(Optional)* Your Google Gemini API Key. If omitted, KinetiQ automatically runs in deterministic grounded mode.
+3. **Deploy**: Click **Deploy**. Vercel detects `vercel.json`, `api/index.py`, and `public/` assets automatically.
+
+---
+
 ## 📁 Repository Structure
 
 ```
 .
 ├── app.py                      # Unified FastAPI entry point (Port 8000)
+├── vercel.json                 # Vercel serverless rewrite & routing rules
+├── api/
+│   └── index.py                # Vercel serverless function ASGI bridge
+├── public/                     # Edge CDN pre-cached static frontend assets
+│   ├── index.html              # Executive responsive dashboard
+│   └── static/                 # Styles and client scripts
 ├── requirements.txt            # Minimal, robust Python dependencies
 ├── README.md                   # Comprehensive documentation
 ├── demo_script.md              # 2-3 minute presentation & demonstration script
@@ -131,5 +148,5 @@ Execution completes in under 12 seconds with 100% test pass rate.
 │       ├── index.html          # Executive responsive dashboard
 │       ├── styles.css          # Modern dark/slate glassmorphic theme
 │       └── app.js              # Client controller and API interface
-└── tests/                      # 49 automated unit and integration tests
+└── tests/                      # Automated unit, integration, and E2E tests
 ```

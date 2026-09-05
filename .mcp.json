@@ -1,6 +1,7 @@
 {
   "mcpServers": {
     "devfolio": {
+      "type": "http",
       "url": "https://mcp.devfolio.co/mcp"
     }
   }

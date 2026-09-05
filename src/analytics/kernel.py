@@ -101,8 +101,14 @@ class AnalyticsKernel:
             raise FileNotFoundError(f"Database file not found at: {self.db_path}")
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
-        conn.execute("PRAGMA journal_mode = WAL;")
-        conn.execute("PRAGMA synchronous = NORMAL;")
+        try:
+            conn.execute("PRAGMA journal_mode = WAL;")
+        except Exception:
+            pass
+        try:
+            conn.execute("PRAGMA synchronous = NORMAL;")
+        except Exception:
+            pass
         return conn
 
     def get_latest_date(self, conn: Optional[sqlite3.Connection] = None) -> str:

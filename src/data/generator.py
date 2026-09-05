@@ -18,10 +18,18 @@ RANDOM_SEED = 42
 
 def get_db_connection(db_path: str = "data/retail_inventory.db") -> sqlite3.Connection:
     """Create directory if needed and return an optimized SQLite connection."""
-    os.makedirs(os.path.dirname(os.path.abspath(db_path)), exist_ok=True)
+    dir_path = os.path.dirname(os.path.abspath(db_path))
+    if dir_path:
+        os.makedirs(dir_path, exist_ok=True)
     conn = sqlite3.connect(db_path)
-    conn.execute("PRAGMA journal_mode = WAL;")
-    conn.execute("PRAGMA synchronous = NORMAL;")
+    try:
+        conn.execute("PRAGMA journal_mode = WAL;")
+    except Exception:
+        pass
+    try:
+        conn.execute("PRAGMA synchronous = NORMAL;")
+    except Exception:
+        pass
     conn.execute("PRAGMA foreign_keys = ON;")
     return conn
 

@@ -1,14 +1,16 @@
 """
 KinetiQ — Retail Sales & Inventory Copilot
 Unified FastAPI Application serving REST API and embedded frontend on Port 8000.
+Supports standard local execution and Vercel serverless deployment.
 """
 
 import os
 import sys
+import threading
 from contextlib import asynccontextmanager
 from typing import Optional
 
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
@@ -21,34 +23,56 @@ from src.analytics.triage import generate_morning_triage
 from src.analytics.simulator import simulate_intervention
 from src.agent.copilot import CopilotAgent
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+IS_VERCEL = bool(os.environ.get("VERCEL"))
 
-DB_PATH = "data/retail_inventory.db"
-FRONTEND_DIST_DIR = os.path.join(os.path.dirname(__file__), "frontend", "dist")
+if IS_VERCEL:
+    DB_PATH = "/tmp/retail_inventory.db"
+else:
+    DB_PATH = os.path.join(BASE_DIR, "data", "retail_inventory.db")
+
+FRONTEND_DIST_DIR = os.path.join(BASE_DIR, "frontend", "dist")
+PUBLIC_DIR = os.path.join(BASE_DIR, "public")
+
+_init_lock = threading.Lock()
+
+
+def init_app_state(app_instance: FastAPI):
+    """
+    Idempotently initializes analytical engines, database seeding,
+    and neuro-symbolic copilot state.
+    Safe for local servers and serverless environments.
+    """
+    if getattr(app_instance.state, "kernel", None) is not None:
+        return
+
+    with _init_lock:
+        if getattr(app_instance.state, "kernel", None) is not None:
+            return
+
+        db_dir = os.path.dirname(os.path.abspath(DB_PATH))
+        if db_dir:
+            os.makedirs(db_dir, exist_ok=True)
+
+        if not os.path.exists(DB_PATH):
+            print(f"[BOOTSTRAP] Seeding initial multi-store retail database at {DB_PATH}...")
+            generate_retail_dataset(db_path=DB_PATH, days=90)
+            print("[BOOTSTRAP] Database generated successfully.")
+
+        # Initialize shared components
+        app_instance.state.kernel = AnalyticsKernel(db_path=DB_PATH)
+        app_instance.state.rebalance = ArbitrageEngine(db_path=DB_PATH, kernel=app_instance.state.kernel)
+        app_instance.state.copilot = CopilotAgent(
+            kernel=app_instance.state.kernel,
+            rebalance_engine=app_instance.state.rebalance,
+        )
+        print("[BOOTSTRAP] KinetiQ Copilot Engine initialized and ready.")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Application lifespan hook:
-    - Auto-seeds 90-day retail dataset if retail_inventory.db does not exist (< 2.5s).
-    - Initializes analytical kernels, arbitrage engine, and neuro-symbolic agent copilot.
-    """
-    os.makedirs("data", exist_ok=True)
-    os.makedirs(FRONTEND_DIST_DIR, exist_ok=True)
-
-    if not os.path.exists(DB_PATH):
-        print("[BOOTSTRAP] Seeding initial multi-store retail database...")
-        generate_retail_dataset(db_path=DB_PATH, days=90)
-        print("[BOOTSTRAP] Database generated successfully.")
-
-    # Initialize shared components
-    app.state.kernel = AnalyticsKernel(db_path=DB_PATH)
-    app.state.rebalance = ArbitrageEngine(db_path=DB_PATH, kernel=app.state.kernel)
-    app.state.copilot = CopilotAgent(
-        kernel=app.state.kernel,
-        rebalance_engine=app.state.rebalance,
-    )
-    print("[BOOTSTRAP] KinetiQ Copilot Engine initialized and ready.")
+    """Application lifespan hook."""
+    init_app_state(app)
     yield
 
 
@@ -57,6 +81,13 @@ app = FastAPI(
     description="Neuro-Symbolic Retail Copilot with Deterministic Grounding",
     lifespan=lifespan,
 )
+
+# State initialization fallback middleware for serverless invocations
+@app.middleware("http")
+async def ensure_state_middleware(request: Request, call_next):
+    if getattr(app.state, "kernel", None) is None:
+        init_app_state(app)
+    return await call_next(request)
 
 # Allow CORS for local testing/development
 app.add_middleware(
@@ -170,17 +201,28 @@ async def get_sku_endpoint(sku_id: str, store_id: str = Query(default="STORE_01"
 
 
 # Serve Embedded Static UI
-if os.path.exists(FRONTEND_DIST_DIR):
-    app.mount("/static", StaticFiles(directory=FRONTEND_DIST_DIR), name="static")
+static_dir = FRONTEND_DIST_DIR if os.path.exists(FRONTEND_DIST_DIR) else os.path.join(PUBLIC_DIR, "static")
+if os.path.exists(static_dir):
+    app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
-    @app.get("/")
-    async def serve_index():
-        index_file = os.path.join(FRONTEND_DIST_DIR, "index.html")
-        if os.path.exists(index_file):
-            return FileResponse(index_file)
-        return JSONResponse(
-            {"message": "KinetiQ API running. Frontend assets will be populated in Phase 09."}
-        )
+
+@app.get("/")
+async def serve_index():
+    candidates = [
+        os.path.join(FRONTEND_DIST_DIR, "index.html"),
+        os.path.join(PUBLIC_DIR, "index.html"),
+    ]
+    for path in candidates:
+        if os.path.exists(path):
+            return FileResponse(path)
+    return JSONResponse(
+        {"status": "online", "message": "KinetiQ Retail Copilot API running."}
+    )
+
+
+@app.get("/healthz")
+async def healthz():
+    return {"status": "healthy"}
 
 
 if __name__ == "__main__":
