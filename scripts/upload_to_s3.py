@@ -1,11 +1,12 @@
-﻿import sys
+import sys
 import requests
 
 def upload(file_path, signed_url):
+    content_type = "image/jpeg" if file_path.lower().endswith((".jpg", ".jpeg")) else "image/png"
     headers = {
         "Cache-Control": "public, max-age=31536000, immutable",
         "Content-Disposition": "inline",
-        "Content-Type": "image/png",
+        "Content-Type": content_type,
         "x-amz-acl": "public-read"
     }
     with open(file_path, 'rb') as f:

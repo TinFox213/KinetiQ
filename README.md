@@ -1,5 +1,7 @@
 # ⚡ KinetiQ — Retail Sales & Inventory Copilot
 
+![KinetiQ Banner](artifacts/images/kinetiq_cover_image.jpg)
+
 > **Neuro-Symbolic Retail Intelligence Platform** unifying deterministic inventory physics, multi-store stock arbitrage, MongoDB multi-role authentication, and grounded conversational AI for enterprise retail leadership.
 
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
@@ -173,9 +175,10 @@ python -m pytest tests/ -v
 
 ## 📺 Product Walkthrough Video & Media Assets
 
-A full high-definition video walkthrough was recorded using automated browser telemetry:
-- **File Asset**: `artifacts/videos/kinetiq_tutorial_walkthrough.webm` (2.82 MB)
-- **Live In-App Player**: Accessible from the **📺 Tutorial Video** button in the top navigation header and login hero banner.
+- **Official Tutorial Walkthrough Video**: [Watch on Google Drive](https://drive.google.com/file/d/1oEPLxmvCwyBN8Hc_oJ9NSInTWtyllmiT/view?usp=sharing)
+- **Local File Asset**: `artifacts/videos/kinetiq_tutorial_walkthrough.webm` (2.82 MB)
+- **Official Cover Banner**: `artifacts/images/kinetiq_cover_image.jpg`
+- **Live In-App Player**: Accessible directly from the **📺 Tutorial Video** button in the top navigation header and login hero banner.
 - **Custom Video Loader**: Includes an interactive link loader allowing users to paste custom video URLs directly into the modal.
 
 ---

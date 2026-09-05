@@ -468,18 +468,24 @@
           </video>
         </div>
 
-        <div style="margin-top: 1.25rem; background: var(--bg-surface-secondary); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+        <div style="margin-top: 1rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem;">
+          <a href="https://drive.google.com/file/d/1oEPLxmvCwyBN8Hc_oJ9NSInTWtyllmiT/view?usp=sharing" target="_blank" rel="noopener noreferrer" class="btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; padding: 0.5rem 1rem; font-weight: 600; border-radius: var(--radius-sm);">
+            <span>▶️</span> Watch Official Video on Google Drive ↗
+          </a>
+        </div>
+
+        <div style="margin-top: 1rem; background: var(--bg-surface-secondary); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
           <label class="form-label" for="inputCustomVideoUrl" style="font-weight: 700; margin-bottom: 0.35rem; display: block;">
             🔗 Custom Video Link (YouTube / Loom / Drive / Direct Video URL)
           </label>
           <div style="display: flex; gap: 0.5rem;">
-            <input type="url" id="inputCustomVideoUrl" class="form-input" placeholder="Paste uploaded video URL here (e.g., https://youtu.be/... or https://.../video.mp4)" style="flex: 1;">
+            <input type="url" id="inputCustomVideoUrl" class="form-input" value="https://drive.google.com/file/d/1oEPLxmvCwyBN8Hc_oJ9NSInTWtyllmiT/view?usp=sharing" placeholder="Paste uploaded video URL here" style="flex: 1;">
             <button type="button" class="btn-primary" onclick="loadCustomVideoUrl()" style="white-space: nowrap; padding: 0.5rem 1rem;">
               <span>Load Video</span>
             </button>
           </div>
-          <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem;">
-            Once you upload the recorded tutorial video, paste the URL here to update the live player dynamically.
+          <p style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.4rem;">
+            Official tutorial walkthrough uploaded on Google Drive. You can also paste any alternative video link.
           </p>
         </div>
       </div>
