@@ -103,6 +103,32 @@ function setupEventListeners() {
     closeApiKeyModal();
   });
 
+  // Tutorial Video Modal Listeners
+  const btnTut = document.getElementById("btnOpenTutorialModal");
+  if (btnTut) {
+    btnTut.addEventListener("click", openTutorialModal);
+  }
+  const btnCloseTut = document.getElementById("btnCloseTutorialModal");
+  if (btnCloseTut) {
+    btnCloseTut.addEventListener("click", closeTutorialModal);
+  }
+
+  // Manual Login Form
+  const manualForm = document.getElementById("manualLoginForm");
+  if (manualForm) {
+    manualForm.addEventListener("submit", handleManualLogin);
+  }
+
+  // Quick Demo Login Cards Direct Listeners
+  document.querySelectorAll(".quick-demo-card").forEach((card) => {
+    card.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (card.classList.contains("role-store_manager")) quickLogin("store_manager");
+      else if (card.classList.contains("role-supply_chain_director")) quickLogin("supply_chain_director");
+      else if (card.classList.contains("role-executive")) quickLogin("executive");
+    });
+  });
+
   // Simulation Sliders
   const discountSlider = document.getElementById("simDiscountSlider");
   const discountLabel = document.getElementById("sliderDiscountLabel");
@@ -192,20 +218,28 @@ function renderLoginView() {
 }
 
 async function quickLogin(role) {
+  showToast(`Authenticating demo role: ${role.replace('_', ' ')}...`, "info");
   try {
-    const res = await fetch(`${API_BASE}/api/auth/quick-login`, {
+    let res = await fetch(`${API_BASE}/api/auth/quick-login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ role })
     });
     if (!res.ok) {
-      showToast("Quick login failed.", "info");
+      res = await fetch(`${API_BASE}/auth/quick-login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ role })
+      });
+    }
+    if (!res.ok) {
+      showToast("Quick login failed. Please try again.", "info");
       return;
     }
     const sess = await res.json();
     setAuthenticatedUser(sess.token, sess);
   } catch (err) {
-    showToast("Network error during login.", "info");
+    showToast("Network error connecting to auth server.", "info");
   }
 }
 
@@ -215,11 +249,18 @@ async function handleManualLogin(e) {
   const password = document.getElementById("inputPassword").value.trim();
 
   try {
-    const res = await fetch(`${API_BASE}/api/auth/login`, {
+    let res = await fetch(`${API_BASE}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, password })
     });
+    if (!res.ok) {
+      res = await fetch(`${API_BASE}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+    }
     if (!res.ok) {
       showToast("Invalid credentials. Use a 1-click Quick Demo card above.", "info");
       return;
@@ -316,7 +357,7 @@ async function refreshDashboard() {
 
     // Update KPIs
     document.getElementById("kpiStockouts").textContent = `${stockoutCount} SKUs`;
-    document.getElementById("kpiDeadCapital").textContent = `$${deadCapital.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    document.getElementById("kpiDeadCapital").textContent = `₹${deadCapital.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     document.getElementById("kpiDeadCount").textContent = `${deadCount} SKUs`;
     document.getElementById("kpiArbitrage").textContent = `${transferCount} Transfers`;
 
@@ -329,7 +370,7 @@ async function refreshDashboard() {
     // Update Narrative
     const health = currentTriage.health_score !== undefined ? currentTriage.health_score : 85;
     const totalSkus = currentTriage.total_active_skus || 250;
-    const narrative = `Store Health Index: ${health}/100 across ${totalSkus} tracked products. Identified ${stockoutCount} imminent stockouts needing immediate attention, $${deadCapital.toFixed(2)} in dormant inventory, and ${transferCount} inter-store peer transfer routes ready for dispatch.`;
+    const narrative = `Store Health Index: ${health}/100 across ${totalSkus} tracked products. Identified ${stockoutCount} imminent stockouts needing immediate attention, ₹${deadCapital.toFixed(2)} in dormant inventory, and ${transferCount} inter-store peer transfer routes ready for dispatch.`;
     document.getElementById("triageNarrative").textContent = narrative;
 
     // Render Action Queue & Sandbox
@@ -382,12 +423,14 @@ function renderActionQueue() {
     items.forEach((item) => {
       const el = document.createElement("div");
       el.className = "action-item";
+      const idleDays = item.days_since_last_sale ?? item.days_idle ?? item.days_stagnant ?? 0;
+      const lockedCap = item.locked_capital ?? item.capital_locked ?? item.capital_locked_usd ?? 0;
       el.innerHTML = `
         <div>
           <div class="action-sku-title">${item.sku_id} — ${item.product_name || item.sku_name}</div>
           <div class="action-meta">
-            <span>💤 Idle: <strong>${item.days_idle ?? item.days_stagnant} days</strong></span>
-            <span>💵 Capital Locked: <strong>$${(item.capital_locked ?? item.capital_locked_usd ?? 0).toFixed(2)}</strong></span>
+            <span>💤 Idle: <strong>${idleDays} days</strong></span>
+            <span>💵 Capital Locked: <strong>₹${lockedCap.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></span>
             <span>📦 Quantity: <strong>${item.on_hand ?? item.units_idle} units</strong></span>
           </div>
         </div>
@@ -427,17 +470,20 @@ function renderActionQueue() {
     items.forEach((m) => {
       const el = document.createElement("div");
       el.className = "action-item";
+      const qty = m.quantity ?? m.transfer_quantity ?? 0;
+      const freight = m.estimated_courier_cost_inr ?? m.estimated_courier_cost ?? m.estimated_courier_cost_usd ?? 0;
+      const savings = m.net_savings ?? m.net_financial_benefit_usd ?? 0;
       el.innerHTML = `
         <div>
-          <div class="action-sku-title">Transfer Manifest ${m.manifest_id}: ${m.sku_id}</div>
+          <div class="action-sku-title">Transfer Manifest ${m.manifest_id}: ${m.sku_id} — ${m.product_name || 'Stock Rebalance'}</div>
           <div class="action-meta">
             <span>Route: <strong>${m.from_store_id} ➔ ${m.to_store_id}</strong></span>
-            <span>Quantity: <strong>${m.transfer_quantity} units</strong></span>
-            <span>Freight Cost: <strong>$${m.estimated_courier_cost_usd}</strong></span>
-            <span>Net Protection: <strong>+$${(m.net_financial_benefit_usd || 0).toFixed(2)}</strong></span>
+            <span>Quantity: <strong>${qty} units</strong></span>
+            <span>Freight Cost: <strong>₹${freight}</strong></span>
+            <span>Net Protection: <strong>+₹${savings.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></span>
           </div>
         </div>
-        <button class="btn-commit-action" onclick="commitTransfer('${m.manifest_id}', '${m.from_store_id}', '${m.to_store_id}', '${m.sku_id}', ${m.transfer_quantity})">
+        <button class="btn-commit-action" onclick="commitTransfer('${m.manifest_id}', '${m.from_store_id}', '${m.to_store_id}', '${m.sku_id}', ${qty})">
           Approve &amp; Dispatch ➔
         </button>
       `;
@@ -525,7 +571,7 @@ function renderRebalanceMatrix() {
             ${item.sku_id} — ${item.from_store_id} ➔ ${item.to_store_id}
           </div>
           <div style="font-size: 0.78rem; color: var(--text-secondary); margin-top: 0.2rem;">
-            Estimated Courier Transit: ${item.assumptions ? item.assumptions.transit_time_hours : 2.5} hrs • Cost: $${item.estimated_courier_cost_usd}
+            Estimated Courier Transit: ${item.assumptions ? item.assumptions.transit_time_hours : 2.5} hrs • Cost: ₹${item.estimated_courier_cost_inr ?? item.estimated_courier_cost ?? item.estimated_courier_cost_usd}
           </div>
         </div>
         <span class="role-badge supply_chain_director">Ready</span>
@@ -599,7 +645,7 @@ async function triggerSimulation() {
 
     document.getElementById("simDemandVal").textContent = `+${units} units (+${liftPct.toFixed(1)}%)`;
     document.getElementById("simMarginVal").textContent = `${liftPct >= 0 ? '+' : ''}${liftPct.toFixed(1)}%`;
-    document.getElementById("simProfitVal").textContent = `${profitDelta >= 0 ? '+' : ''}$${profitDelta.toFixed(2)}`;
+    document.getElementById("simProfitVal").textContent = `${profitDelta >= 0 ? '+' : ''}₹${profitDelta.toFixed(2)}`;
 
     // Risk Banner
     const banner = document.getElementById("simRiskBanner");
@@ -673,6 +719,9 @@ async function handleChatSubmit(e) {
   }
   stream.scrollTop = stream.scrollHeight;
 }
+
+// Alias for compatibility
+const handleUserMessage = handleChatSubmit;
 
 // ============================================================================
 // Gemini API Key Management Modal
@@ -749,3 +798,44 @@ async function testAiConnection() {
     showToast("Could not reach Copilot API.", "info");
   }
 }
+
+// ============================================================================
+// Tutorial Video Modal Controls
+// ============================================================================
+
+function openTutorialModal() {
+  const modal = document.getElementById("tutorialModal");
+  if (!modal) return;
+  modal.classList.add("active");
+  const video = document.getElementById("tutorialVideoPlayer");
+  if (video) {
+    video.currentTime = 0;
+  }
+}
+
+function closeTutorialModal() {
+  const modal = document.getElementById("tutorialModal");
+  if (!modal) return;
+  modal.classList.remove("active");
+  const video = document.getElementById("tutorialVideoPlayer");
+  if (video) {
+    video.pause();
+  }
+}
+
+function loadCustomVideoUrl() {
+  const input = document.getElementById("inputCustomVideoUrl");
+  const url = input ? input.value.trim() : "";
+  if (!url) {
+    showToast("Please enter a valid video link.", "info");
+    return;
+  }
+  const video = document.getElementById("tutorialVideoPlayer");
+  if (video) {
+    video.src = url;
+    video.load();
+    video.play().catch(() => {});
+    showToast("Custom tutorial video loaded!", "success");
+  }
+}
+

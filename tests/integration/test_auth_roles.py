@@ -5,11 +5,12 @@ Validates MongoDB auth layer, 1-click quick logins, session retrieval, and key u
 
 import pytest
 from fastapi.testclient import TestClient
-from app import app
+from app import app, init_app_state
 
 
 @pytest.fixture(scope="module")
 def client():
+    init_app_state(app)
     with TestClient(app) as c:
         yield c
 

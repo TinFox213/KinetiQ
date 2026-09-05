@@ -7,6 +7,7 @@ from src.data.generator import generate_retail_dataset
 from src.analytics.kernel import AnalyticsKernel
 from src.analytics.rebalance import ArbitrageEngine
 from src.agent.copilot import CopilotAgent
+from src.data.mongodb import get_auth_service
 
 TEST_DB_PATH = "data/test_retail_inventory.db"
 
@@ -43,5 +44,6 @@ def api_client(test_db, kernel, arbitrage_engine):
     app.state.kernel = kernel
     app.state.rebalance = arbitrage_engine
     app.state.copilot = CopilotAgent(kernel, arbitrage_engine)
+    app.state.auth = get_auth_service()
     client = TestClient(app)
     return client

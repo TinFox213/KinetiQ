@@ -131,7 +131,7 @@ class CopilotAgent:
             tools_executed.append("check_interstore_transfers")
 
         # Check for dead stock / overstock / non-moving
-        if any(w in q for w in ["dead stock", "not moving", "stagnant", "overstock", "idle", "locked capital", "markdown"]):
+        if any(w in q for w in ["dead stock", "dead capital", "locked capital", "capital locked", "not moving", "stagnant", "overstock", "idle", "markdown", "dead", "capital"]):
             res = self.execute_tool("get_dead_stock", {"store_id": store_id})
             data_payload["dead_stock"] = res
             tools_executed.append("get_dead_stock")
@@ -203,8 +203,26 @@ class CopilotAgent:
         when Gemini API is offline or unconfigured.
         """
         lines = []
+        ql = query.lower()
+        is_dead_query = any(w in ql for w in ["dead", "capital", "stagnant", "not moving", "idle"])
 
-        if "imminent_stockouts" in data:
+        if is_dead_query and "dead_stock" in data:
+            ds_data = data["dead_stock"]
+            items = ds_data.get("dead_stock", [])
+            lines.append("### 📦 Stagnant Inventory & Dead Capital Report")
+            if items:
+                lines.append(f"Surfaced **{ds_data.get('count', len(items))} slow-moving SKUs** tying up working capital at `{store_id}`:\n")
+                for it in items[:3]:
+                    lines.append(
+                        f"- **{it['product_name']} (`{it['sku_id']}`)**:\n"
+                        f"  - **On Hand:** {it['on_hand']} units | **Locked Capital:** **₹{it['locked_capital']:0.2f}**\n"
+                        f"  - **Days Idle:** **{it['days_since_last_sale']} days** without sale | **Holding Drag:** ₹{it['monthly_holding_cost_drag']:0.2f}/month\n"
+                        f"  - **Recommended Action:** {it['recommended_action']} (Expected cash recovery: **₹{it['estimated_cash_recovery']:0.2f}**)."
+                    )
+            else:
+                lines.append("No dead stock items detected above the 30-day threshold.\n")
+
+        elif "imminent_stockouts" in data:
             so_data = data["imminent_stockouts"]
             items = so_data.get("stockouts", [])
             lines.append("### ⚠️ Imminent Stockout Triage")
@@ -227,7 +245,7 @@ class CopilotAgent:
                 for t in transfers[:2]:
                     lines.append(
                         f"- **Transfer {t['quantity']} units of {t['product_name']}** from **{t['from_store_name']}** to **{t['to_store_name']}**\n"
-                        f"  - **Financial Savings:** **${t['gross_profit_protected']:0.2f} gross profit protected** (Courier cost: ${t['estimated_courier_cost']:0.2f} | **Net Benefit: +${t['net_savings']:0.2f}**)\n"
+                        f"  - **Financial Savings:** **₹{t['gross_profit_protected']:0.2f} gross profit protected** (Courier cost: ₹{t['estimated_courier_cost']:0.2f} | **Net Benefit: +₹{t['net_savings']:0.2f}**)\n"
                         f"  - **Estimated Transit Time:** **{t['estimated_transit_hours']} hours** via local delivery\n"
                         f"  - **Source Safety:** Source store maintains **{t['source_remaining_runway_days']} days** of runway."
                     )
@@ -241,9 +259,9 @@ class CopilotAgent:
                 for it in items[:3]:
                     lines.append(
                         f"- **{it['product_name']} (`{it['sku_id']}`)**:\n"
-                        f"  - **On Hand:** {it['on_hand']} units | **Locked Capital:** **${it['locked_capital']:0.2f}**\n"
-                        f"  - **Days Idle:** **{it['days_since_last_sale']} days** without sale | **Holding Drag:** ${it['monthly_holding_cost_drag']:0.2f}/month\n"
-                        f"  - **Recommended Action:** {it['recommended_action']} (Expected cash recovery: **${it['estimated_cash_recovery']:0.2f}**)."
+                        f"  - **On Hand:** {it['on_hand']} units | **Locked Capital:** **₹{it['locked_capital']:0.2f}**\n"
+                        f"  - **Days Idle:** **{it['days_since_last_sale']} days** without sale | **Holding Drag:** ₹{it['monthly_holding_cost_drag']:0.2f}/month\n"
+                        f"  - **Recommended Action:** {it['recommended_action']} (Expected cash recovery: **₹{it['estimated_cash_recovery']:0.2f}**)."
                     )
             else:
                 lines.append("No dead stock items detected above the 30-day threshold.\n")
@@ -272,9 +290,9 @@ class CopilotAgent:
                     lines.append(
                         f"- **Store:** {m['store_name']} (`{m['store_id']}`)\n"
                         f"- **On-Hand Inventory:** **{m['on_hand']} units** (Days since last sale: {m['days_since_last_sale']})\n"
-                        f"- **Pricing & Margins:** Retail: **${m['retail_price']:0.2f}** | Cost: **${m['cost_price']:0.2f}** | Gross Margin: **{m['gross_margin_pct']}%**\n"
+                        f"- **Pricing & Margins:** Retail: **₹{m['retail_price']:0.2f}** | Cost: **₹{m['cost_price']:0.2f}** | Gross Margin: **{m['gross_margin_pct']}%**\n"
                         f"- **Rolling Sales Velocity:** 7-Day: **{m['velocity_7d']} units/day** | 30-Day: **{m['velocity_30d']} units/day**\n"
-                        f"- **30-Day Volume:** **{m['units_sold_30d']} units sold** generating **${m['revenue_30d']:0.2f}** in revenue\n"
+                        f"- **30-Day Volume:** **{m['units_sold_30d']} units sold** generating **₹{m['revenue_30d']:0.2f}** in revenue\n"
                         f"- **Supplier Details:** {m['supplier_name']} (Lead Time: **{m['lead_time_days']} days**, MOQ: {m['min_order_qty']})"
                     )
                 elif k.startswith("sku_metrics_") and "error" in m:
@@ -284,8 +302,8 @@ class CopilotAgent:
             ov = data["store_overview"]
             lines.append(f"### 🏬 Store Performance Overview: {ov['store_name']} (`{ov['store_id']}`)\n")
             lines.append(
-                f"- **Total Revenue (30d):** **${ov['total_revenue']:0.2f}** (Avg Daily: ${ov['avg_daily_revenue']:0.2f}/day)\n"
-                f"- **Gross Profit:** **${ov['total_gross_profit']:0.2f}** | **Gross Margin:** **{ov['gross_margin_pct']}%**\n"
+                f"- **Total Revenue (30d):** **₹{ov['total_revenue']:0.2f}** (Avg Daily: ₹{ov['avg_daily_revenue']:0.2f}/day)\n"
+                f"- **Gross Profit:** **₹{ov['total_gross_profit']:0.2f}** | **Gross Margin:** **{ov['gross_margin_pct']}%**\n"
                 f"- **Volume Sold:** **{ov['total_units_sold']} units** across **{ov['active_skus_count']} active SKUs**\n"
                 f"- **Out of Stock Items Today:** **{ov['out_of_stock_skus_count']} SKUs**"
             )

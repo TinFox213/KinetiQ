@@ -15,9 +15,8 @@ TEST_DB_PATH = "data/test_retail_inventory.db"
 
 @pytest.fixture(scope="module")
 def kernel():
-    """Seed test database if needed and return AnalyticsKernel instance."""
-    if not os.path.exists(TEST_DB_PATH):
-        generate_retail_dataset(db_path=TEST_DB_PATH, days=90)
+    """Seed test database and return AnalyticsKernel instance."""
+    generate_retail_dataset(db_path=TEST_DB_PATH, days=90)
     return AnalyticsKernel(db_path=TEST_DB_PATH)
 
 
@@ -32,8 +31,8 @@ def test_sku_metrics_calculation(kernel):
     assert "White Bread" in metrics.product_name
     assert metrics.category == "Bakery"
     assert metrics.store_id == "STORE_01"
-    assert metrics.cost_price == 1.20
-    assert metrics.retail_price == 2.49
+    assert metrics.cost_price == 35.00
+    assert metrics.retail_price == 55.00
 
     # Velocities must be non-negative
     assert metrics.velocity_7d >= 0.0
@@ -44,8 +43,8 @@ def test_sku_metrics_calculation(kernel):
     # Demand standard deviation must be non-negative
     assert metrics.std_dev_demand >= 0.0
 
-    # Margin check: ((2.49 - 1.20) / 2.49) * 100 = 51.8%
-    expected_margin = round(((2.49 - 1.20) / 2.49) * 100, 1)
+    # Margin check: ((55.00 - 35.00) / 55.00) * 100 = 36.4%
+    expected_margin = round(((55.00 - 35.00) / 55.00) * 100, 1)
     assert metrics.gross_margin_pct == expected_margin
 
     # Units and revenue consistency

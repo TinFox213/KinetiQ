@@ -13,14 +13,14 @@ from src.analytics.kernel import AnalyticsKernel, SkuMetrics
 from src.analytics.inventory_physics import calculate_doi, calculate_safety_stock, calculate_rop
 
 
-# Inter-store distance matrix and courier cost estimates (in KM and USD)
+# Inter-store distance matrix and courier cost estimates (in KM and INR)
 STORE_DISTANCE_MATRIX = {
-    ("STORE_01", "STORE_02"): {"distance_km": 12.5, "transit_hours": 1.5, "courier_cost": 8.50},
-    ("STORE_01", "STORE_03"): {"distance_km": 8.2, "transit_hours": 1.0, "courier_cost": 6.50},
-    ("STORE_02", "STORE_01"): {"distance_km": 12.5, "transit_hours": 1.5, "courier_cost": 8.50},
-    ("STORE_02", "STORE_03"): {"distance_km": 18.0, "transit_hours": 2.0, "courier_cost": 11.00},
-    ("STORE_03", "STORE_01"): {"distance_km": 8.2, "transit_hours": 1.0, "courier_cost": 6.50},
-    ("STORE_03", "STORE_02"): {"distance_km": 18.0, "transit_hours": 2.0, "courier_cost": 11.00},
+    ("STORE_01", "STORE_02"): {"distance_km": 12.5, "transit_hours": 1.5, "courier_cost": 250.00},
+    ("STORE_01", "STORE_03"): {"distance_km": 8.2, "transit_hours": 1.0, "courier_cost": 180.00},
+    ("STORE_02", "STORE_01"): {"distance_km": 12.5, "transit_hours": 1.5, "courier_cost": 250.00},
+    ("STORE_02", "STORE_03"): {"distance_km": 18.0, "transit_hours": 2.0, "courier_cost": 320.00},
+    ("STORE_03", "STORE_01"): {"distance_km": 8.2, "transit_hours": 1.0, "courier_cost": 180.00},
+    ("STORE_03", "STORE_02"): {"distance_km": 18.0, "transit_hours": 2.0, "courier_cost": 320.00},
 }
 
 
@@ -179,6 +179,7 @@ class ArbitrageEngine:
             created_at=datetime.utcnow().isoformat(),
             assumptions={
                 "courier_cost_usd": courier_cost,
+                "courier_cost_inr": courier_cost,
                 "transit_time_hours": best_source["transit_info"]["transit_hours"],
                 "gross_margin_per_unit": round(retail - cost, 2),
                 "source_min_reserve_kept": best_source["peer_metrics"].on_hand - best_source["surplus"],

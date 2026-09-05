@@ -44,6 +44,18 @@
         <option value="STORE_03">STORE_03 — North Corridor Highway Hub</option>
       </select>
 
+      <!-- Currency Badge -->
+      <div class="currency-indicator-pill" title="Standardized Operational Currency">
+        <span>🇮🇳</span>
+        <span>INR (₹)</span>
+      </div>
+
+      <!-- Tutorial Video Button -->
+      <button id="btnOpenTutorialModal" class="btn-header" onclick="openTutorialModal()" title="Watch KinetiQ Product Walkthrough">
+        <span>📺</span>
+        <span>Tutorial Video</span>
+      </button>
+
       <!-- Gemini API Key Config Button -->
       <button id="btnOpenApiKeyModal" class="btn-header" title="Configure Google Gemini API Key">
         <span>🔑</span>
@@ -63,11 +75,19 @@
        ======================================================================== -->
   <main id="loginView" class="login-view-container">
     <div class="login-hero-header">
-      <div class="login-hero-badge">⚡ Multi-Role Retail Intelligence</div>
+      <div style="display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 0.75rem;">
+        <div class="login-hero-badge">⚡ Multi-Role Retail Intelligence</div>
+        <div class="login-hero-badge" style="background: #f0fdf4; color: #166534; border-color: #bbf7d0;">🇮🇳 All Values in INR (₹)</div>
+      </div>
       <h1 class="login-hero-title">Select Your Operational Role</h1>
       <p class="login-hero-sub">
         Explore KinetiQ through 1-click interactive demo accounts tailored to each retail leadership tier, backed by MongoDB persistence and deterministic inventory physics.
       </p>
+      <div style="margin-top: 1rem; display: flex; justify-content: center; gap: 0.75rem;">
+        <button type="button" class="btn-header" onclick="openTutorialModal()" style="font-weight: 700; border-color: var(--border-medium); box-shadow: var(--shadow-sm); padding: 0.5rem 1rem;">
+          <span>📺</span> Watch Product Tutorial Video
+        </button>
+      </div>
     </div>
 
     <!-- 3-Column Quick Demo Bento Grid -->
@@ -91,7 +111,7 @@
             <li>Local Price &amp; Lift Simulator</li>
           </ul>
         </div>
-        <button class="btn-quick-login emerald">
+        <button type="button" class="btn-quick-login emerald" onclick="event.stopPropagation(); quickLogin('store_manager')">
           <span>Quick Demo Login</span>
           <span>➔</span>
         </button>
@@ -116,7 +136,7 @@
             <li>Chain-Wide Transfer Commit Engine</li>
           </ul>
         </div>
-        <button class="btn-quick-login indigo">
+        <button type="button" class="btn-quick-login indigo" onclick="event.stopPropagation(); quickLogin('supply_chain_director')">
           <span>Quick Demo Login</span>
           <span>➔</span>
         </button>
@@ -141,7 +161,7 @@
             <li>Gemini API Key Administration</li>
           </ul>
         </div>
-        <button class="btn-quick-login amber">
+        <button type="button" class="btn-quick-login amber" onclick="event.stopPropagation(); quickLogin('executive')">
           <span>Quick Demo Login</span>
           <span>➔</span>
         </button>
@@ -198,7 +218,7 @@
           <span class="kpi-label">Locked Dead Capital</span>
           <span class="kpi-icon">💰</span>
         </div>
-        <div class="kpi-val" id="kpiDeadCapital">$0.00</div>
+        <div class="kpi-val" id="kpiDeadCapital">₹0.00</div>
         <div class="kpi-sub"><strong id="kpiDeadCount">0 SKUs</strong> idle for 21+ days</div>
       </div>
 
@@ -230,7 +250,7 @@
           <div class="card-title-group">
             <span class="card-icon-bubble">📋</span>
             <div>
-              <div class="card-title">3-Minute Morning Triage &amp; Action Queue</div>
+              <div class="card-title">3-Minute Morning Triage &amp; Daily Action Queue</div>
               <div class="card-subtitle" id="triageScopeLabel">Context: Downtown Metro Express</div>
             </div>
           </div>
@@ -348,7 +368,7 @@
           </div>
           <div class="sim-stat-box">
             <span class="sim-stat-label">Net Profit Variance</span>
-            <div class="sim-stat-val" id="simProfitVal">+$0.00</div>
+            <div class="sim-stat-val" id="simProfitVal">+₹0.00</div>
           </div>
         </div>
 
@@ -416,6 +436,53 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       Tutorial Video Modal
+       ======================================================================== -->
+  <div id="tutorialModal" class="modal-backdrop">
+    <div class="modal-card" style="max-width: 780px;">
+      <div class="modal-header">
+        <div class="card-title-group">
+          <span class="card-icon-bubble">📺</span>
+          <div>
+            <div class="modal-title">KinetiQ Product Walkthrough &amp; Demo Video</div>
+            <div class="card-subtitle">End-to-end multi-role triage, rebalance arbitrage, and What-If simulation</div>
+          </div>
+        </div>
+        <button id="btnCloseTutorialModal" class="btn-close-modal" onclick="closeTutorialModal()">✕</button>
+      </div>
+
+      <div class="modal-body" style="padding-top: 0.5rem;">
+        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1rem;">
+          Watch the automated interactive walkthrough of KinetiQ in action across all three operational leadership tiers.
+        </p>
+        
+        <div style="background: #0f172a; border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-md); position: relative;">
+          <video id="tutorialVideoPlayer" controls playsinline style="width: 100%; max-height: 440px; display: block; background: #000;">
+            <source src="/static/kinetiq_tutorial_walkthrough.webm" type="video/webm">
+            <source src="/static/kinetiq_tutorial_walkthrough.mp4" type="video/mp4">
+            Your browser does not support HTML5 video playback.
+          </video>
+        </div>
+
+        <div style="margin-top: 1.25rem; background: var(--bg-surface-secondary); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle);">
+          <label class="form-label" for="inputCustomVideoUrl" style="font-weight: 700; margin-bottom: 0.35rem; display: block;">
+            🔗 Custom Video Link (YouTube / Loom / Drive / Direct Video URL)
+          </label>
+          <div style="display: flex; gap: 0.5rem;">
+            <input type="url" id="inputCustomVideoUrl" class="form-input" placeholder="Paste uploaded video URL here (e.g., https://youtu.be/... or https://.../video.mp4)" style="flex: 1;">
+            <button type="button" class="btn-primary" onclick="loadCustomVideoUrl()" style="white-space: nowrap; padding: 0.5rem 1rem;">
+              <span>Load Video</span>
+            </button>
+          </div>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem;">
+            Once you upload the recorded tutorial video, paste the URL here to update the live player dynamically.
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 

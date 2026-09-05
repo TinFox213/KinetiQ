@@ -104,7 +104,7 @@ def test_sku_endpoint(client):
     assert sku["sku_id"] == "SKU_1001"
     assert "Classic White Bread" in sku["product_name"]
     assert sku["velocity_7d"] >= 0
-    assert sku["retail_price"] == 2.49
+    assert sku["retail_price"] == 55.0
 
 
 def test_commit_transfer_endpoint(client):

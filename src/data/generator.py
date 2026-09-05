@@ -109,46 +109,46 @@ def generate_retail_dataset(
         "Pantry": ["Heritage", "Chef Selection", "Sun-Ripened", "Natural", "Stone-Ground"],
     }
 
-    # Explicit anchor definitions
+    # Explicit anchor definitions (INR currency values)
     anchors = {
         1001: {
             "name": "Classic White Bread 400g", "cat": "Bakery", "subcat": "Bread",
-            "cost": 1.20, "retail": 2.49, "perish": 1, "shelf": 4, "sup": "SUP_01",
+            "cost": 35.00, "retail": 55.00, "perish": 1, "shelf": 4, "sup": "SUP_01",
             "type": "staple_perishable", "base_demand": 18
         },
         1002: {
             "name": "Whole Wheat Loaf 400g", "cat": "Bakery", "subcat": "Bread",
-            "cost": 1.50, "retail": 3.29, "perish": 1, "shelf": 5, "sup": "SUP_01",
+            "cost": 45.00, "retail": 70.00, "perish": 1, "shelf": 5, "sup": "SUP_01",
             "type": "staple_perishable", "base_demand": 14
         },
         1008: {
             "name": "Artisanal Sourdough Loaf 500g", "cat": "Bakery", "subcat": "Bread",
-            "cost": 2.20, "retail": 4.99, "perish": 1, "shelf": 3, "sup": "SUP_01",
+            "cost": 95.00, "retail": 180.00, "perish": 1, "shelf": 3, "sup": "SUP_01",
             "type": "sourdough_anomaly", "base_demand": 16
         },
         1012: {
             "name": "Cold Pressed Extra Virgin Olive Oil 500ml", "cat": "Pantry", "subcat": "Cooking Oil",
-            "cost": 5.50, "retail": 11.99, "perish": 0, "shelf": 365, "sup": "SUP_03",
+            "cost": 450.00, "retail": 750.00, "perish": 0, "shelf": 365, "sup": "SUP_03",
             "type": "staple_fmcg", "base_demand": 9
         },
         1020: {
             "name": "Organic A2 Fresh Whole Milk 1L", "cat": "Dairy & Eggs", "subcat": "Milk",
-            "cost": 1.80, "retail": 3.89, "perish": 1, "shelf": 4, "sup": "SUP_01",
+            "cost": 55.00, "retail": 85.00, "perish": 1, "shelf": 4, "sup": "SUP_01",
             "type": "arbitrage_milk", "base_demand": 15
         },
         1042: {
             "name": "Organic Plain Greek Yogurt 500g", "cat": "Dairy & Eggs", "subcat": "Yogurt",
-            "cost": 2.10, "retail": 4.49, "perish": 1, "shelf": 6, "sup": "SUP_01",
+            "cost": 80.00, "retail": 140.00, "perish": 1, "shelf": 6, "sup": "SUP_01",
             "type": "stockout_yogurt", "base_demand": 12
         },
         1050: {
             "name": "Roasted Himalayan Pink Salt Makhana 100g", "cat": "Snacks", "subcat": "Nuts",
-            "cost": 1.40, "retail": 3.49, "perish": 0, "shelf": 150, "sup": "SUP_02",
+            "cost": 90.00, "retail": 160.00, "perish": 0, "shelf": 150, "sup": "SUP_02",
             "type": "velocity_spike", "base_demand": 8
         },
         1080: {
             "name": "Artisanal White Truffle Glaze & Vinegar 250ml", "cat": "Pantry", "subcat": "Sauce",
-            "cost": 18.50, "retail": 29.99, "perish": 0, "shelf": 365, "sup": "SUP_05",
+            "cost": 850.00, "retail": 1450.00, "perish": 0, "shelf": 365, "sup": "SUP_05",
             "type": "dead_stock_vinegar", "base_demand": 0
         },
     }
@@ -171,8 +171,8 @@ def generate_retail_dataset(
             subcat = subcats[(sku_num % len(subcats))]
             prefix = item_prefixes[cat_name][(sku_num % len(item_prefixes[cat_name]))]
 
-            cost = round(random.uniform(1.20, 18.00), 2)
-            margin = random.uniform(1.35, 1.85)
+            cost = round(random.uniform(40.0, 550.0), 2)
+            margin = random.uniform(1.25, 1.75)
             retail = round(cost * margin, 2)
             product_name = f"{prefix} {subcat} {sku_num % 100 + 100}g"
 

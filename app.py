@@ -50,31 +50,28 @@ def init_app_state(app_instance: FastAPI):
     MongoDB auth services, and neuro-symbolic copilot state.
     Safe for local servers and serverless environments.
     """
-    if getattr(app_instance.state, "kernel", None) is not None:
-        return
-
     with _init_lock:
-        if getattr(app_instance.state, "kernel", None) is not None:
-            return
+        if getattr(app_instance.state, "kernel", None) is None:
+            db_dir = os.path.dirname(os.path.abspath(DB_PATH))
+            if db_dir:
+                os.makedirs(db_dir, exist_ok=True)
 
-        db_dir = os.path.dirname(os.path.abspath(DB_PATH))
-        if db_dir:
-            os.makedirs(db_dir, exist_ok=True)
+            if not os.path.exists(DB_PATH):
+                print(f"[BOOTSTRAP] Seeding initial multi-store retail database at {DB_PATH}...")
+                generate_retail_dataset(db_path=DB_PATH, days=90)
+                print("[BOOTSTRAP] Database generated successfully.")
 
-        if not os.path.exists(DB_PATH):
-            print(f"[BOOTSTRAP] Seeding initial multi-store retail database at {DB_PATH}...")
-            generate_retail_dataset(db_path=DB_PATH, days=90)
-            print("[BOOTSTRAP] Database generated successfully.")
+            # Initialize shared components
+            app_instance.state.kernel = AnalyticsKernel(db_path=DB_PATH)
+            app_instance.state.rebalance = ArbitrageEngine(db_path=DB_PATH, kernel=app_instance.state.kernel)
+            app_instance.state.copilot = CopilotAgent(
+                kernel=app_instance.state.kernel,
+                rebalance_engine=app_instance.state.rebalance,
+            )
 
-        # Initialize shared components
-        app_instance.state.kernel = AnalyticsKernel(db_path=DB_PATH)
-        app_instance.state.rebalance = ArbitrageEngine(db_path=DB_PATH, kernel=app_instance.state.kernel)
-        app_instance.state.copilot = CopilotAgent(
-            kernel=app_instance.state.kernel,
-            rebalance_engine=app_instance.state.rebalance,
-        )
-        app_instance.state.auth = get_auth_service()
-        print("[BOOTSTRAP] KinetiQ Copilot Engine & MongoDB Auth initialized.")
+        if getattr(app_instance.state, "auth", None) is None:
+            app_instance.state.auth = get_auth_service()
+            print("[BOOTSTRAP] KinetiQ Copilot Engine & MongoDB Auth initialized.")
 
 
 @asynccontextmanager
@@ -90,10 +87,41 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# Path normalization middleware for Vercel serverless rewrites and stripped prefixes
+@app.middleware("http")
+async def path_normalization_middleware(request: Request, call_next):
+    # Check if request was rewritten to index.py by Vercel
+    if request.scope.get("path", "").endswith("index.py"):
+        matched = (
+            request.headers.get("x-matched-path")
+            or request.headers.get("x-vercel-matched-path")
+            or request.headers.get("x-forwarded-uri")
+        )
+        if matched:
+            request.scope["path"] = matched.split("?")[0]
+
+    cur_path = request.scope.get("path", "")
+    api_prefixes = (
+        "/auth/",
+        "/roles/",
+        "/triage/",
+        "/chat",
+        "/simulate",
+        "/stores",
+        "/actions/",
+        "/sku/",
+        "/health",
+    )
+    if any(cur_path.startswith(p) for p in api_prefixes) and not cur_path.startswith("/api/"):
+        request.scope["path"] = f"/api{cur_path}"
+
+    return await call_next(request)
+
+
 # State initialization fallback middleware for serverless invocations
 @app.middleware("http")
 async def ensure_state_middleware(request: Request, call_next):
-    if getattr(app.state, "kernel", None) is None:
+    if getattr(app.state, "kernel", None) is None or getattr(app.state, "auth", None) is None:
         init_app_state(app)
     return await call_next(request)
 
