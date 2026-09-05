@@ -1,157 +1,305 @@
-# KinetiQ — Retail Sales & Inventory Copilot
+# ⚡ KinetiQ — Retail Sales & Inventory Copilot
 
-KinetiQ is a **Neuro-Symbolic Retail Copilot** that unifies deterministic inventory physics with conversational intelligence for multi-store retail store managers. It eliminates spreadsheet fatigue, prevents stockouts, unlocks stagnant capital, and enables intra-network stock transfers with zero mathematical hallucinations.
+> **Neuro-Symbolic Retail Intelligence Platform** unifying deterministic inventory physics, multi-store stock arbitrage, MongoDB multi-role authentication, and grounded conversational AI for enterprise retail leadership.
+
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688.svg)](https://fastapi.tiangolo.com/)
+[![MongoDB Atlas](https://img.shields.io/badge/MongoDB-Atlas%20Ready-47A248.svg)](https://www.mongodb.com/)
+[![Google Gemini](https://img.shields.io/badge/AI-Google%20Gemini%202.5-4285F4.svg)](https://deepmind.google/technologies/gemini/)
+[![Currency: INR](https://img.shields.io/badge/Currency-INR%20(%E2%82%B9)%20Only-FF9933.svg)]()
+[![Tests: 178 Passed](https://img.shields.io/badge/tests-178%2F178%20passed%20(100%25)-brightgreen.svg)]()
+[![Vercel Deployment](https://img.shields.io/badge/deployment-Vercel%20Live-black.svg)](https://kineti-q-xi.vercel.app/)
 
 ---
 
-## ⚡ Quickstart (Single-Command Run)
+## 🌐 Live Production Links
 
-Run the entire application (database seeding, analytical kernel, Gemini copilot, and embedded dashboard) on port 8000:
+- **Live Web Application**: [https://kineti-q-xi.vercel.app/](https://kineti-q-xi.vercel.app/)
+- **GitHub Repository**: [https://github.com/TinFox213/KinetiQ.git](https://github.com/TinFox213/KinetiQ.git)
+- **Target Custom Domain**: `KinetiQ.com`
 
-```bash
-# 1. Install dependencies
-pip install -r requirements.txt
+---
 
-# 2. (Optional) Set your Gemini API Key for conversational AI
-# If omitted, KinetiQ automatically runs in local deterministic mode
-export GEMINI_API_KEY="your-gemini-api-key"
+## 🌟 Executive Summary
 
-# 3. Launch KinetiQ (cold start < 4 seconds)
-python app.py
-```
+Retail leadership teams face a dual crisis: **spreadsheet fatigue** that blinds store managers to imminent stockouts, and **LLM arithmetic hallucination** that prevents executives from trusting conversational AI for inventory capital decisions. 
 
-Then open your browser at **`http://localhost:8000`**.
+**KinetiQ** solves this with a **neuro-symbolic architecture**:
+1. **The Symbolic Engine**: A high-performance deterministic analytical core (<100ms) executing pure SQLite relational queries, inventory physics equations (DOI, Safety Stock, ROP), Z-score demand anomaly detection, and inter-store stock arbitrage economics in **INR (`₹`)**.
+2. **The Cognitive Brain**: An AI copilot powered by Google Gemini 2.5 Flash that *never calculates math directly*. All claims are strictly grounded in structured SQL facts, protected by an **epistemic refusal guardrail** that rejects out-of-domain queries (e.g. footfall, weather, demographics).
+3. **White & Bright Bento Box SaaS UI**: A high-contrast light theme with modular Bento cards, 1-click Quick Demo login, role switching, interactive markdown simulator, and an in-app tutorial walkthrough video player.
+
+---
+
+## 👥 Multi-Role Operational Architecture
+
+KinetiQ features role-based access control (RBAC) backed by **MongoDB Atlas** (`pymongo`) with SHA-256 credential hashing and automatic in-memory fallback:
+
+| Role | Persona & Scope | Key Capabilities & Bento Modules |
+| :--- | :--- | :--- |
+| 🏪 **Store General Manager** | **Alice Johnson**<br>*Downtown Metro Express (`STORE_01`)* | • **3-Minute Morning Triage Cockpit** (Runway & Health Score: 0–100)<br>• **Imminent Stockout Radar** ($\text{DOI} \le \text{Lead Time} + \text{SS}$)<br>• **Inbound Rebalance Receiving** & Local Shelf Audits<br>• Local store copilot chat scoping |
+| 🔄 **Supply Chain Director** | **Bob Martinez**<br>*Multi-Store Network (3 Hubs)* | • **Network Stock Arbitrage Matrix** (Surplus $\rightarrow$ Deficit)<br>• **Courier Freight Optimization** (Route tariffs in ₹180–₹320)<br>• **STN Manifest Generation & 1-Click Commit**<br>• Dead capital reclamation across all stores |
+| 📊 **Executive & CFO** | **Clara Vance**<br>*Enterprise Fleet Portfolio* | • **Executive Bento Financial KPIs** (Chain-wide capital & margins)<br>• **Store Performance Benchmark Leaderboard**<br>• **What-If Price Elasticity Sandbox** ($E = -1.4$ to $-2.2$)<br>• **Gemini API Key Governance** (Live testing modal) |
 
 ---
 
 ## 🏗️ System Architecture
 
-KinetiQ is architected on a **strict separation of concerns** between deterministic mathematical truth and linguistic reasoning:
-
 ```mermaid
 flowchart TD
-    UI[Executive Web Dashboard: Port 8000] -->|HTTP / REST| API[FastAPI Gateway app.py]
-    
-    subgraph Symbolic Brain [Deterministic Mathematical Core]
-        API --> KERNEL[Analytics Kernel: SQLite/DuckDB]
-        KERNEL --> PHYSICS[Inventory Physics: DOI & ROP]
-        KERNEL --> ANOMALY[Anomaly Detector & Dead Stock]
-        KERNEL --> REBALANCE[Multi-Store Arbitrage Engine]
+    subgraph Client [Bento Box SaaS Frontend]
+        LOGIN[1-Click Quick Demo & MongoDB Login] --> PORTAL[Role-Scoped Bento Dashboard]
+        PORTAL --> TRIAGE[3-Minute Morning Triage]
+        PORTAL --> ARB_UI[Stock Arbitrage Matrix]
+        PORTAL --> SIM_UI[What-If Markdown Sandbox]
+        PORTAL --> CHAT_UI[AI Copilot Interface]
+        PORTAL --> VIDEO_MODAL[Tutorial Video Player]
     end
-    
-    subgraph Cognitive Brain [Neuro-Symbolic Conversational Agent]
-        API --> AGENT[Copilot Agent: src/agent/copilot.py]
-        AGENT --> EPISTEMIC[Epistemic Guardrail: src/agent/epistemic.py]
-        AGENT --> GEMINI[Google Gemini 2.5 Flash SDK]
-        PHYSICS -.->|Grounded JSON| AGENT
-    end
-```
 
-### Core Architecture Principles:
-1. **Zero-Math in the LLM:** The language model never performs arithmetic, moving averages, or projections. All calculations are executed deterministically in Python/SQL and passed as verified structured JSON.
-2. **Strict Grounding:** Every claim in the copilot response quotes exact on-hand units, unconstrained 7-day velocity, and supplier lead times.
-3. **Disciplined Epistemic Refusal:** If a query requests data not captured in POS/inventory records (e.g., footfall counters, weather/rainfall, competitor prices, customer demographics), the copilot politely declines rather than fabricating guesses.
-4. **Inter-Store Inventory Arbitrage:** When a store faces a deficit, KinetiQ scans nearby network stores for excess idle stock, calculating courier transit fees and net profit preserved.
+    subgraph API_GW [FastAPI Gateway on Port 8000 / Vercel Serverless]
+        AUTH[MongoAuthService: Session & JWT]
+        NORM[Path Normalization Middleware]
+        NORM --> ROUTER[FastAPI REST Router]
+    end
+
+    subgraph Symbolic [Deterministic Mathematical Engine: < 100ms]
+        ROUTER --> KERNEL[Analytics Kernel: SQLite 250 SKUs / 67.5k Records]
+        KERNEL --> PHYSICS[Inventory Physics: DOI, ROP, Safety Stock]
+        KERNEL --> ANOMALY[Anomaly Detector: Z-Score & Dead Capital]
+        KERNEL --> REBALANCE[Multi-Store Arbitrage Engine: Courier INR Tariffs]
+        KERNEL --> SIMULATOR[Price Elasticity Simulator]
+    end
+
+    subgraph Cognitive [Cognitive AI Engine]
+        ROUTER --> AGENT[Copilot Agent: Google Gemini 2.5 Flash]
+        AGENT --> EPISTEMIC[Epistemic Boundary Guardrail]
+        PHYSICS -.->|Grounded INR Facts| AGENT
+        ANOMALY -.->|Grounded INR Facts| AGENT
+        REBALANCE -.->|Grounded INR Facts| AGENT
+    end
+
+    subgraph Persistence [Data Layer]
+        AUTH --> MONGO[(MongoDB Atlas Cluster)]
+        KERNEL --> SQLITE[(retail_inventory.db: WAL Mode)]
+    end
+
+    Client <-->|REST / JSON| API_GW
+```
 
 ---
 
-## 🚀 Key Functional Modules
+## ⚡ Mathematical & Inventory Physics Core
 
-### 1. Daily 3-Minute Morning Triage Cockpit
-- **Health Scorecard (0–100 index):** Real-time operational health metric summarizing inventory status.
-- **Top 3 Imminent Stockouts:** Flagged when Days of Inventory (DOI) $\le$ Supplier Lead Time $+$ Safety Buffer.
-- **Top 3 Dead Capital Items:** Non-moving inventory ($30+$ days idle or $\text{DOI} > 90$ days) with holding cost drag (24% annual rate).
-- **Demand Anomalies:** Statistical Z-score demand shifts ($|Z| \ge 2.0$) and phantom inventory detection.
+All financial metrics, valuations, and tariffs operate strictly in **Indian Rupees (`₹`)**:
 
-### 2. Multi-Store Inventory Arbitrage
-- When Store 1 experiences an imminent stockout of fast-moving items, KinetiQ evaluates surplus inventory at nearby peer stores (Store 2, Store 3).
-- Ensures source stores retain adequate safety reserve ($\text{Velocity}_{7d} \times (L + 14) + \text{SS}$).
-- Generates 1-click **Stock Transfer Notes (STNs)** with route, courier fee, and net profit protected.
+### 1. Days of Inventory (DOI)
+$$\text{DOI} = \frac{\text{On Hand Units}}{\text{Unconstrained 7-Day Velocity}}$$
+*When on-hand stock is 0, DOI is bounded to 0.0. When velocity is 0 and stock exists, DOI returns a sentinel safe value of 999.0 days.*
 
-### 3. Interactive What-If Simulation Sandbox
-- Interactive slider modeling price discounts (5% to 60%) against category price elasticity ($E = -1.4$ to $-2.2$).
-- Computes projected demand lift %, accelerated clearance runway, profit variance, and automated supply chain exhaustion warnings.
+### 2. Imminent Stockout Condition
+$$\text{Stockout Trigger} \iff \text{DOI} \le \text{Supplier Lead Time (days)} + \text{Safety Stock Buffer}$$
+
+### 3. Network Stock Arbitrage Economics
+When Destination Store $D$ faces a stockout deficit, KinetiQ evaluates candidate Donor Stores $S$ across the network:
+$$\text{Safe Transfer Quantity} = \min\left(\text{Deficit}_D, \; \text{Stock}_S - \left[\text{Velocity}_S \times (L_S + 14) + \text{SS}_S\right]\right)$$
+$$\text{Net Profit Preserved (₹)} = (\text{Quantity} \times \text{Gross Profit Unit}) - \text{Courier Freight Cost (₹)}$$
+*Transfers are only dispatched if $\text{Net Profit Preserved} > 0$, preventing negative-margin freight dispatch.*
+
+### 4. What-If Price Elasticity Clearance Simulation
+$$\text{Demand Lift (\%)} = -E \times \text{Discount (\%)} \times \left(1 - 0.15 \times \frac{\text{Discount (\%)}}{100}\right)$$
+$$\text{Projected Runway (days)} = \frac{\text{On Hand Units}}{\text{Baseline Velocity} \times (1 + \text{Demand Lift})}$$
+
+---
+
+## 🛡️ Disciplined Epistemic Refusal Guardrails
+
+KinetiQ never hallucinates data outside its domain boundary. If a query requests untracked variables, the copilot explicitly issues a structured refusal notice rather than guessing:
+
+| Query Type | Copilot Response Behavior | Rationale |
+| :--- | :--- | :--- |
+| **Retail Sales & Stock** | ✅ Full grounded response with SKU IDs, velocities, and INR values | Grounded in database facts |
+| **Store Rebalancing** | ✅ Manifest IDs, routes, freight tariffs in ₹, net profit preserved | Verified by arbitrage engine |
+| **Footfall / Walk-ins** | 🚫 **Refusal**: *"Data Boundary Notice: Footfall tracking not captured in POS schema."* | Epistemic discipline |
+| **Weather / Rain** | 🚫 **Refusal**: *"Data Boundary Notice: Weather telemetry not available."* | Prevents speculative guesses |
+| **Competitor Prices** | 🚫 **Refusal**: *"Data Boundary Notice: External competitor pricing not ingested."* | Out-of-domain protection |
+| **Customer Demographics** | 🚫 **Refusal**: *"Data Boundary Notice: Customer age/gender/demographics not stored."* | Privacy & domain integrity |
 
 ---
 
 ## 📡 REST API Reference
 
+All endpoints support optional Bearer authentication via MongoDB JWT tokens:
+
 | Method | Endpoint | Description |
 | :--- | :--- | :--- |
-| `GET` | `/api/health` | Service health and uptime probe |
-| `GET` | `/api/stores` | Directory of registered network stores |
-| `GET` | `/api/triage/today?store_id=STORE_01` | Executive 3-minute morning triage briefing payload |
-| `POST` | `/api/chat` | Natural language query endpoint with citation grounding |
-| `POST` | `/api/actions/transfer` | Approves and commits an inter-store stock transfer |
-| `POST` | `/api/simulate` | Evaluates What-If price markdown and elasticity scenario |
-| `GET` | `/api/sku/{sku_id}?store_id=STORE_01` | Granular 7d/14d/30d performance metrics for a SKU |
-| `GET` | `/` | Serves embedded executive dashboard |
+| `POST` | `/api/auth/quick-login` | 1-Click demo authentication (`store_manager`, `supply_chain_director`, `executive`) |
+| `POST` | `/api/auth/login` | MongoDB credential sign-in (email/username & password) |
+| `GET` | `/api/auth/me` | Current authenticated user profile, assigned store, and role |
+| `POST` | `/api/auth/api-key` | Updates user-level Google Gemini API Key with live verification |
+| `GET` | `/api/roles/overview` | Directory of available operational roles and descriptions |
+| `GET` | `/api/health` | Health probe reporting service status, MongoDB, and Gemini connectivity |
+| `GET` | `/api/stores` | Listing of all 3 registered retail stores in the network |
+| `GET` | `/api/triage/today?store_id={id}` | 3-Minute morning triage payload (Health score, stockouts, dead capital in ₹) |
+| `POST` | `/api/actions/transfer` | Approves and commits an inter-store Stock Transfer Note (STN) |
+| `POST` | `/api/simulate` | Evaluates What-If price markdown elasticity and clearance velocity |
+| `POST` | `/api/chat` | Natural language grounded copilot query with verified citations |
+| `GET` | `/api/sku/{sku_id}?store_id={id}` | Granular 7d/14d/30d performance metrics and sales history for a SKU |
+| `GET` | `/` | Serves the responsive White Bento Box SaaS web dashboard |
 
 ---
 
-## 🧪 Automated Test Suite
+## 🧪 Comprehensive Test Suite (178 / 178 Tests Passing)
 
-KinetiQ includes a comprehensive test suite with 49 unit and integration tests covering data generation, mathematical formulas, boundary refusals, arbitrage, and REST APIs:
+KinetiQ includes 22 test suites covering every layer of the application:
 
 ```bash
-# Run all tests
+# Run the entire test suite
 python -m pytest tests/ -v
 ```
 
-Execution completes in under 12 seconds with 100% test pass rate.
-
----
-
-## 🚀 Deploy to Vercel
-
-KinetiQ is configured for turnkey deployment to Vercel Serverless Functions and Edge CDN:
-
-1. **Import Repository**: Connect `https://github.com/TinFox213/KinetiQ.git` in your Vercel Dashboard.
-2. **Environment Variables**:
-   - `GEMINI_API_KEY`: *(Optional)* Your Google Gemini API Key. If omitted, KinetiQ automatically runs in deterministic grounded mode.
-3. **Deploy**: Click **Deploy**. Vercel detects `vercel.json`, `api/index.py`, and `public/` assets automatically.
-4. **Custom Domain (`KinetiQ.com`)**:
-   - In Vercel Project Settings ➔ **Domains**, add `kinetiq.com` and `www.kinetiq.com`.
-   - In your DNS provider (e.g. GoDaddy, Namecheap, Cloudflare), configure:
-     - **Apex (`@`)**: `A` Record ➔ `76.76.21.21`
-     - **Subdomain (`www`)**: `CNAME` Record ➔ `cname.vercel-dns.com`
-
----
-
-## 📁 Repository Structure
-
+```text
+======================= 178 passed, 1 warning in 39.05s =======================
 ```
+
+- **Unit Inventory Physics (`tests/unit/test_inventory_physics.py`)**: 12/12 Passed (DOI sentinels, ROP invariants, safety stock, perishable expiry).
+- **Kernel Math & Safeguards (`tests/unit/test_kernel_math.py`)**: 12/12 Passed (Rolling velocity formulas, division-by-zero guards, aggregations).
+- **Demand Anomaly Engine (`tests/unit/test_anomalies.py`)**: 12/12 Passed (Z-score demand shifts, phantom stock, dead capital valuations in ₹).
+- **Arbitrage Logistics Engine (`tests/unit/test_arbitrage.py`)**: 12/12 Passed (Courier distance matrix, STN schemas, donor depletion guards).
+- **Price Elasticity Simulator (`tests/unit/test_simulator.py`)**: 10/10 Passed (Elasticity decay, markdown clearance, exhaustion warnings).
+- **Multi-Role Auth & Sessions (`tests/integration/test_auth_roles.py`)**: 8/8 Passed (MongoDB auth, 1-click logins, JWT validation, key updates).
+- **INR Currency & Vercel Routing (`tests/integration/test_inr_and_quicklogin.py`)**: 7/7 Passed (INR prices, dead capital formatting, courier freight, path normalization).
+- **E2E Master Workflows (`tests/e2e/test_master_workflows.py`, `tests/test_hackathon_criteria.py`)**: 105/105 Passed (End-to-end user journeys, epistemic refusals, zero track ID leakage).
+
+---
+
+## 📺 Product Walkthrough Video & Media Assets
+
+A full high-definition video walkthrough was recorded using automated browser telemetry:
+- **File Asset**: `artifacts/videos/kinetiq_tutorial_walkthrough.webm` (2.82 MB)
+- **Live In-App Player**: Accessible from the **📺 Tutorial Video** button in the top navigation header and login hero banner.
+- **Custom Video Loader**: Includes an interactive link loader allowing users to paste custom video URLs directly into the modal.
+
+---
+
+## 🚀 Local Quickstart Guide
+
+### Prerequisites
+- Python 3.10 or higher
+- Git
+
+### 1. Clone the Repository
+```bash
+git clone https://github.com/TinFox213/KinetiQ.git
+cd KinetiQ
+```
+
+### 2. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Configure Environment Variables
+Create a `.env` file in the project root:
+```env
+# Google Gemini API Key (Optional: engages local grounded template engine if omitted)
+GEMINI_API_KEY=your_gemini_api_key_here
+
+# MongoDB Atlas URI (Optional: engages resilient in-memory store if omitted)
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster.mongodb.net/kinetiq_db?retryWrites=true&w=majority
+```
+
+### 4. Run the Application
+```bash
+python app.py
+```
+
+Open **`http://localhost:8000`** in your browser. Use the 1-Click Quick Demo buttons to explore any of the 3 roles instantly!
+
+---
+
+## ☁️ Deployment on Vercel
+
+KinetiQ is fully optimized for Vercel Serverless Functions and Edge CDN:
+1. Push to your GitHub repository: `git push origin main`.
+2. Connect your repo in the [Vercel Dashboard](https://vercel.com).
+3. Set your environment variables (`GEMINI_API_KEY`, `MONGODB_URI`).
+4. Click **Deploy**. Vercel detects `vercel.json`, executes `@vercel/python` on `api/index.py`, and deploys edge static assets from `public/`.
+
+---
+
+## 📁 Repository Directory Structure
+
+```text
 .
-├── app.py                      # Unified FastAPI entry point (Port 8000)
-├── vercel.json                 # Vercel serverless rewrite & routing rules
+├── app.py                           # Unified FastAPI application & ASGI server
+├── vercel.json                      # Vercel @vercel/python build & route declarations
+├── requirements.txt                 # Clean Python dependencies
+├── mcp.json                         # Devfolio MCP connection specification
+├── README.md                        # Complete architecture & developer documentation
+├── demo_script.md                   # 2-3 minute presentation & demonstration script
+│
 ├── api/
-│   └── index.py                # Vercel serverless function ASGI bridge
-├── public/                     # Edge CDN pre-cached static frontend assets
-│   ├── index.html              # Executive responsive dashboard
-│   └── static/                 # Styles and client scripts
-├── requirements.txt            # Minimal, robust Python dependencies
-├── README.md                   # Comprehensive documentation
-├── demo_script.md              # 2-3 minute presentation & demonstration script
+│   └── index.py                     # Vercel Serverless Function entrypoint
+│
+├── artifacts/
+│   ├── verification/                # Playwright E2E visual verification screenshots
+│   └── videos/                      # Product tutorial walkthrough video (2.82 MB)
+│
 ├── data/
-│   └── retail_inventory.db     # Local SQLite database (WAL mode)
-├── src/
-│   ├── data/
-│   │   ├── schema.sql          # Relational DDL with compound indexes
-│   │   └── generator.py        # Synthetic retail generator (< 2.5s)
-│   ├── analytics/
-│   │   ├── kernel.py           # Deterministic SQL analytical kernel
-│   │   ├── inventory_physics.py# DOI, Safety Stock, ROP, Stockout Predictor
-│   │   ├── anomalies.py        # Z-score demand anomalies & dead capital
-│   │   ├── rebalance.py        # Multi-store inventory arbitrage engine
-│   │   ├── triage.py           # 3-minute morning briefing generator
-│   │   └── simulator.py        # What-If price elasticity sandbox
-│   └── agent/
-│       ├── epistemic.py        # Disciplined refusal boundary guardrail
-│       └── copilot.py          # Gemini 2.5 Flash SDK & fallback template engine
+│   └── retail_inventory.db          # Ground-truth SQLite database (WAL mode, INR prices)
+│
 ├── frontend/
-│   └── dist/
-│       ├── index.html          # Executive responsive dashboard
-│       ├── styles.css          # Modern dark/slate glassmorphic theme
-│       └── app.js              # Client controller and API interface
-└── tests/                      # Automated unit, integration, and E2E tests
+│   └── dist/                        # White & Bright Bento Box SaaS UI
+│       ├── index.html               # Semantic Bento Box interface with video modal
+│       ├── styles.css               # Clean SaaS light theme & role palettes
+│       ├── app.js                   # Client controller, auth, & AI chat state
+│       └── kinetiq_tutorial_walkthrough.webm
+│
+├── public/                          # Vercel CDN static cache directory
+│   ├── index.html
+│   └── static/
+│       ├── styles.css
+│       ├── app.js
+│       └── kinetiq_tutorial_walkthrough.webm
+│
+├── scripts/
+│   ├── record_tutorial_video.py     # Playwright browser tutorial video recorder
+│   ├── verify_inr_and_triage.py     # Playwright automated verification suite
+│   └── devfolio_upload_assets.py    # Devfolio S3 asset upload utility
+│
+├── src/
+│   ├── agent/
+│   │   ├── copilot.py               # Grounded Gemini copilot & deterministic fallback
+│   │   └── epistemic.py             # Disciplined domain boundary guardrails
+│   ├── analytics/
+│   │   ├── kernel.py                # Sub-100ms deterministic analytical kernel
+│   │   ├── inventory_physics.py     # DOI, Safety Stock, ROP, Stockout Predictor
+│   │   ├── anomalies.py             # Z-score demand shifts & dead capital (INR)
+│   │   ├── rebalance.py             # Multi-store stock arbitrage & courier matrix (INR)
+│   │   ├── triage.py                # 3-minute morning briefing synthesis
+│   │   └── simulator.py             # What-If price elasticity clearance sandbox
+│   └── data/
+│       ├── schema.sql               # Relational SQLite DDL with compound indexes
+│       ├── generator.py             # Realistic INR synthetic retail generator (< 3s)
+│       └── mongodb.py               # MongoDB Atlas auth service & session manager
+│
+└── tests/                           # 178 Automated Tests Across 22 Test Suites
+    ├── conftest.py                  # Pytest fixtures & app state lifecycle hooks
+    ├── test_api.py                  # REST API endpoint integration tests
+    ├── test_kernel.py               # Analytical kernel calculation tests
+    ├── test_physics.py              # Inventory runway & ROP tests
+    ├── test_anomalies.py            # Anomaly engine tests
+    ├── test_rebalance.py            # Multi-store arbitrage tests
+    ├── test_simulator.py            # Price elasticity sandbox tests
+    ├── test_triage.py               # Morning triage cockpit tests
+    ├── test_hackathon_criteria.py   # Grounding, refusal, & zero track leakage tests
+    ├── e2e/                         # Master end-to-end workflow journeys
+    ├── integration/                 # Auth, MongoDB, INR, & MCP integration tests
+    └── unit/                        # Granular mathematical unit test cases (TC-001–TC-094)
 ```
+
+---
+
+## 📄 License & Integrity Statement
+
+This project is open-source under the MIT License. Built with zero arithmetic hallucination, strict domain boundaries, and deterministic mathematical guarantees.
