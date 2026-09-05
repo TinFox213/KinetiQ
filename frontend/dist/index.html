@@ -4,14 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KinetiQ — Retail Sales & Inventory Copilot</title>
-  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="stylesheet" href="/static/styles.css?v=2.1">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
 </head>
 <body>
 
-  <!-- Top Navigation Bar -->
+  <!-- Top Navigation Header Bento -->
   <header class="app-header">
-    <div class="brand-container">
+    <div class="brand-container" id="headerBrand">
       <div class="brand-logo">KQ</div>
       <div>
         <div class="brand-title">KinetiQ</div>
@@ -19,197 +19,410 @@
       </div>
     </div>
 
-    <div class="header-controls">
-      <select id="storeSelect" class="store-selector" title="Select Retail Store">
+    <!-- Authenticated Header Controls -->
+    <div class="header-controls" id="headerControls" style="display: none;">
+      <!-- Active User Capsule -->
+      <div class="user-profile-capsule">
+        <span class="user-avatar" id="headerAvatar">🏪</span>
+        <div>
+          <span class="user-meta-name" id="headerUserName">Alice Johnson</span>
+        </div>
+        <span class="role-badge store_manager" id="headerRoleBadge">Store Manager</span>
+      </div>
+
+      <!-- Quick Role Switcher -->
+      <select id="roleSwitcherSelect" class="role-selector-header" title="Switch Demo Role Context">
+        <option value="store_manager">Role: Store Manager</option>
+        <option value="supply_chain_director">Role: Supply Chain Director</option>
+        <option value="executive">Role: Executive &amp; CFO</option>
+      </select>
+
+      <!-- Store Context Selector -->
+      <select id="storeSelect" class="store-selector" title="Select Retail Store Context">
         <option value="STORE_01">STORE_01 — Downtown Metro Express</option>
         <option value="STORE_02">STORE_02 — Westside Suburban Supercenter</option>
         <option value="STORE_03">STORE_03 — North Corridor Highway Hub</option>
       </select>
 
-      <div class="status-badge" title="Backend Connection Live">
-        <span class="status-dot"></span>
-        <span>Online</span>
-      </div>
+      <!-- Gemini API Key Config Button -->
+      <button id="btnOpenApiKeyModal" class="btn-header" title="Configure Google Gemini API Key">
+        <span>🔑</span>
+        <span id="apiKeyStatusLabel">API Key</span>
+      </button>
+
+      <!-- Logout Button -->
+      <button id="btnLogout" class="btn-header" title="Sign Out of Session">
+        <span>🚪</span>
+        <span>Sign Out</span>
+      </button>
     </div>
   </header>
 
-  <!-- Main Container -->
-  <main class="main-container">
+  <!-- ========================================================================
+       VIEW 1: Login & 1-Click Quick Demo Portal
+       ======================================================================== -->
+  <main id="loginView" class="login-view-container">
+    <div class="login-hero-header">
+      <div class="login-hero-badge">⚡ Multi-Role Retail Intelligence</div>
+      <h1 class="login-hero-title">Select Your Operational Role</h1>
+      <p class="login-hero-sub">
+        Explore KinetiQ through 1-click interactive demo accounts tailored to each retail leadership tier, backed by MongoDB persistence and deterministic inventory physics.
+      </p>
+    </div>
 
-    <!-- 3-Minute Executive Scorecard -->
-    <section class="scorecard-grid">
-      <div class="score-card">
-        <div class="score-label">
-          <span>Store Health</span>
-          <span id="scoreDate">Today</span>
+    <!-- 3-Column Quick Demo Bento Grid -->
+    <div class="quick-demo-grid">
+      <!-- Role 1: Store Manager -->
+      <div class="quick-demo-card role-store_manager" onclick="quickLogin('store_manager')">
+        <div class="demo-card-top">
+          <div class="demo-role-header">
+            <span class="demo-role-icon">🏪</span>
+            <span class="role-badge store_manager">Store Manager</span>
+          </div>
+          <div class="demo-user-name">Alice Johnson</div>
+          <div class="demo-scope-badge">Downtown Metro Express (STORE_01)</div>
+          <p class="demo-role-desc">
+            Focuses on single-store morning triage, preventing imminent shelf stockouts, and local customer demand velocity.
+          </p>
+          <ul class="demo-feature-list">
+            <li>3-Minute Morning Store Triage</li>
+            <li>Imminent Stockout Radar (0-3d runway)</li>
+            <li>Inbound Rebalance Receiving</li>
+            <li>Local Price &amp; Lift Simulator</li>
+          </ul>
         </div>
-        <div class="score-value" id="healthScore">--/100</div>
-        <div class="score-sub">Managed by <span id="managerName">Rajesh Sharma</span></div>
+        <button class="btn-quick-login emerald">
+          <span>Quick Demo Login</span>
+          <span>➔</span>
+        </button>
       </div>
 
-      <div class="score-card">
-        <div class="score-label">Active SKUs</div>
-        <div class="score-value" id="statActiveSkus">250</div>
-        <div class="score-sub" id="statHealthySkus">225 healthy</div>
+      <!-- Role 2: Supply Chain Director -->
+      <div class="quick-demo-card role-supply_chain_director" onclick="quickLogin('supply_chain_director')">
+        <div class="demo-card-top">
+          <div class="demo-role-header">
+            <span class="demo-role-icon">🔄</span>
+            <span class="role-badge supply_chain_director">Supply Chain Director</span>
+          </div>
+          <div class="demo-user-name">Bob Martinez</div>
+          <div class="demo-scope-badge">Multi-Store Network (3 Hubs)</div>
+          <p class="demo-role-desc">
+            Orchestrates cross-store stock rebalancing, monitors courier freight transit, and eliminates dead stagnant capital.
+          </p>
+          <ul class="demo-feature-list">
+            <li>Network-Wide Stock Arbitrage Matrix</li>
+            <li>Dead Capital &amp; Phantom Stock Reclamation</li>
+            <li>Courier Freight Route Dispatch</li>
+            <li>Chain-Wide Transfer Commit Engine</li>
+          </ul>
+        </div>
+        <button class="btn-quick-login indigo">
+          <span>Quick Demo Login</span>
+          <span>➔</span>
+        </button>
       </div>
 
-      <div class="score-card">
-        <div class="score-label">Imminent Stockouts</div>
-        <div class="score-value" id="statStockouts" style="color: var(--accent-rose);">--</div>
-        <div class="score-sub" id="statStockoutsLoss">$-- at risk</div>
+      <!-- Role 3: Executive & CFO -->
+      <div class="quick-demo-card role-executive" onclick="quickLogin('executive')">
+        <div class="demo-card-top">
+          <div class="demo-role-header">
+            <span class="demo-role-icon">📊</span>
+            <span class="role-badge executive">Executive &amp; CFO</span>
+          </div>
+          <div class="demo-user-name">Clara Vance</div>
+          <div class="demo-scope-badge">Enterprise Fleet Portfolio</div>
+          <p class="demo-role-desc">
+            Oversees chain-wide financial variance, gross margin optimization, fleet performance, and Gemini AI governance.
+          </p>
+          <ul class="demo-feature-list">
+            <li>Executive Bento Financial KPIs</li>
+            <li>Portfolio Gross Margin Variance</li>
+            <li>Store Performance Benchmark Leaderboard</li>
+            <li>Gemini API Key Administration</li>
+          </ul>
+        </div>
+        <button class="btn-quick-login amber">
+          <span>Quick Demo Login</span>
+          <span>➔</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Manual Login Fallback -->
+    <div class="manual-login-card">
+      <div class="card-header-clean">
+        <div class="card-title-group">
+          <span class="card-icon-bubble">🔐</span>
+          <div>
+            <div class="card-title">Manual Credentials Sign-In</div>
+            <div class="card-subtitle">Connect via MongoDB authenticated credentials</div>
+          </div>
+        </div>
       </div>
 
-      <div class="score-card">
-        <div class="score-label">Dead Capital</div>
-        <div class="score-value" id="statDeadStock" style="color: var(--accent-amber);">--</div>
-        <div class="score-sub" id="statDeadCapital">$-- locked</div>
+      <form id="manualLoginForm" onsubmit="handleManualLogin(event)">
+        <div class="form-group">
+          <label class="form-label" for="inputUsername">Username or Email</label>
+          <input type="text" id="inputUsername" class="form-input" placeholder="e.g. manager@kinetiq.com" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="inputPassword">Password</label>
+          <input type="password" id="inputPassword" class="form-input" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn-primary" style="width: 100%;">
+          <span>Sign In</span>
+          <span>➔</span>
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <!-- ========================================================================
+       VIEW 2: Authenticated Executive Bento Box Dashboard
+       ======================================================================== -->
+  <main id="dashboardView" class="bento-container" style="display: none;">
+    
+    <!-- Bento Row 1: Executive KPI Metrics -->
+    <section class="bento-kpi-grid">
+      <div class="kpi-bento-card">
+        <div class="kpi-top">
+          <span class="kpi-label">Imminent Stockout Risk</span>
+          <span class="kpi-icon">🚨</span>
+        </div>
+        <div class="kpi-val" id="kpiStockouts">0 SKUs</div>
+        <div class="kpi-sub"><strong>Runway &lt; 3 days</strong> requiring urgent action</div>
       </div>
 
-      <div class="score-card">
-        <div class="score-label">Network Arbitrage</div>
-        <div class="score-value" id="statTransfers" style="color: var(--accent-emerald);">--</div>
-        <div class="score-sub" id="statAnomalies">-- anomalies flagged</div>
+      <div class="kpi-bento-card">
+        <div class="kpi-top">
+          <span class="kpi-label">Locked Dead Capital</span>
+          <span class="kpi-icon">💰</span>
+        </div>
+        <div class="kpi-val" id="kpiDeadCapital">$0.00</div>
+        <div class="kpi-sub"><strong id="kpiDeadCount">0 SKUs</strong> idle for 21+ days</div>
+      </div>
+
+      <div class="kpi-bento-card">
+        <div class="kpi-top">
+          <span class="kpi-label">Arbitrage Opportunities</span>
+          <span class="kpi-icon">⚡</span>
+        </div>
+        <div class="kpi-val" id="kpiArbitrage">0 Transfers</div>
+        <div class="kpi-sub">Ready for <strong>instant peer rebalance</strong></div>
+      </div>
+
+      <div class="kpi-bento-card">
+        <div class="kpi-top">
+          <span class="kpi-label">Copilot Reasoning Status</span>
+          <span class="kpi-icon">🧠</span>
+        </div>
+        <div class="kpi-val" id="kpiCopilotStatus">Grounded</div>
+        <div class="kpi-sub">Zero Hallucination • <strong>Deterministic SQL</strong></div>
       </div>
     </section>
 
-    <!-- Operational Split Workspace -->
-    <section class="workspace-grid">
-
-      <!-- Left Column: Daily 3-Minute Action Queue -->
-      <div class="panel">
-        <div class="panel-header">
-          <div class="panel-title">
-            <span>⚡</span>
-            <span>Daily Action Queue</span>
+    <!-- Bento Row 2: Operational Triage & AI Copilot -->
+    <section class="bento-ops-grid">
+      
+      <!-- Left Bento (Wide): Morning Triage & Priority Action Matrix -->
+      <div class="bento-card">
+        <div class="card-header-clean">
+          <div class="card-title-group">
+            <span class="card-icon-bubble">📋</span>
+            <div>
+              <div class="card-title">3-Minute Morning Triage &amp; Action Queue</div>
+              <div class="card-subtitle" id="triageScopeLabel">Context: Downtown Metro Express</div>
+            </div>
           </div>
-
-          <nav class="tab-nav">
-            <button class="tab-btn active" data-tab="stockouts">Stockouts</button>
-            <button class="tab-btn" data-tab="deadstock">Dead Capital</button>
-            <button class="tab-btn" data-tab="anomalies">Anomalies</button>
-            <button class="tab-btn" data-tab="transfers">Transfers</button>
-          </nav>
+          <button id="btnRefreshTriage" class="btn-header">
+            <span>🔄</span> Refresh
+          </button>
         </div>
 
-        <div class="panel-content" id="queueContainer">
-          <!-- Populated dynamically by app.js -->
+        <!-- Narrative Briefing Box -->
+        <div class="triage-narrative-box" id="triageNarrative">
+          Loading morning operational briefing and inventory runway...
+        </div>
+
+        <!-- Interactive Action Matrix Tabs -->
+        <div class="tab-row">
+          <button class="tab-btn active" data-tab="stockouts">Stockouts (<span id="tabCountStockouts">0</span>)</button>
+          <button class="tab-btn" data-tab="deadStock">Dead Capital (<span id="tabCountDead">0</span>)</button>
+          <button class="tab-btn" data-tab="surges">Sales Surges (<span id="tabCountSurges">0</span>)</button>
+          <button class="tab-btn" data-tab="rebalance">Peer Transfers (<span id="tabCountRebalance">0</span>)</button>
+        </div>
+
+        <!-- Action Items Queue Container -->
+        <div id="actionQueueContainer" style="min-height: 260px; max-height: 380px; overflow-y: auto;">
+          <!-- Populated by JavaScript -->
         </div>
       </div>
 
-      <!-- Right Column: Conversational Copilot -->
-      <div class="panel chat-container">
-        <div class="panel-header">
-          <div class="panel-title">
-            <span>💬</span>
-            <span>Copilot Assistant</span>
-          </div>
-          <span style="font-size: 0.75rem; color: var(--text-dim);">Deterministic &bull; Zero Hallucination</span>
-        </div>
-
-        <div class="chat-history" id="chatHistory">
-          <div class="chat-msg copilot">
-            <div class="msg-bubble">
-              <h3>👋 Good morning! Ready for your 3-minute morning triage.</h3>
-              <p>I have analyzed POS transactions, stock balances, and supplier lead times across Stores 1, 2, and 3.</p>
-              <br>
-              <p>You can ask me about stockout risks, stagnant dead stock, velocity anomalies, or click any quick prompt below:</p>
+      <!-- Right Bento: Conversational AI Copilot -->
+      <div class="bento-card copilot-panel">
+        <div class="card-header-clean">
+          <div class="card-title-group">
+            <span class="card-icon-bubble">💬</span>
+            <div>
+              <div class="card-title">Retail Copilot Assistant</div>
+              <div class="card-subtitle" id="copilotRoleBadge">Persona: Store General Manager</div>
             </div>
-            <div class="msg-source-tag">⚡ Verified Source: Deterministic Analytics Kernel</div>
           </div>
+          <span class="role-badge store_manager" id="copilotPill">Ground-Truth Citing</span>
         </div>
 
-        <!-- Quick Prompt Chips -->
-        <div class="chips-container">
-          <button class="chip-btn" data-prompt="What items are facing imminent stockout this week?">⚠️ What's running out?</button>
-          <button class="chip-btn" data-prompt="Show me stagnant inventory and dead capital holding costs.">📦 Dead capital analysis</button>
-          <button class="chip-btn" data-prompt="Can we rebalance inventory from other stores?">🔄 Check transfers</button>
-          <button class="chip-btn" data-prompt="Compare Classic White Bread performance with Whole Wheat Bread.">📊 Compare breads</button>
-          <button class="chip-btn" data-prompt="Why did customer footfall drop yesterday due to the rain?">🌧️ Footfall check (Refusal demo)</button>
+        <!-- Role-Tailored Prompt Suggestions -->
+        <div class="prompt-suggestions-row" id="promptSuggestionsContainer">
+          <!-- Populated by JavaScript according to role -->
+        </div>
+
+        <!-- Chat Stream -->
+        <div class="chat-message-stream" id="chatMessageStream">
+          <div class="chat-msg assistant">
+            👋 Welcome! I am your <strong>KinetiQ Copilot</strong>. Ask me anything about stockout risks, inter-store transfer routes, dead stock recovery, or price markdown simulations.
+          </div>
         </div>
 
         <!-- Chat Input Bar -->
-        <form class="chat-input-bar" id="chatForm">
-          <input type="text" id="chatInput" class="chat-input" placeholder="Ask anything about inventory, sales, suppliers, or arbitrage..." autocomplete="off">
-          <button type="submit" class="chat-send-btn">Send</button>
+        <form id="chatForm" onsubmit="handleChatSubmit(event)" class="chat-input-bar">
+          <input type="text" id="chatInput" class="chat-input" placeholder="Ask anything: e.g. What SKUs run out first?" autocomplete="off" required>
+          <button type="submit" class="btn-primary" id="btnSendChat">
+            <span>Send</span>
+          </button>
         </form>
       </div>
-
     </section>
 
-    <!-- Bottom Panel: Interactive What-If Simulation Sandbox -->
-    <section class="simulator-panel" id="simulatorSection">
-      <div class="panel-title">
-        <span>🧪</span>
-        <span>Interactive What-If Simulation Sandbox</span>
-      </div>
-
-      <div class="sim-controls">
-        <div class="control-group">
-          <label class="control-label" for="simSkuSelect">Select Target SKU</label>
-          <select id="simSkuSelect" class="sim-input"></select>
-        </div>
-
-        <div class="control-group">
-          <label class="control-label">Clearance Markdown: <span id="simDiscountVal">20%</span></label>
-          <div class="sim-slider-container">
-            <input type="range" id="simDiscountSlider" class="sim-slider" min="5" max="60" step="5" value="20">
+    <!-- Bento Row 3: Interactive Sandbox & Matrix -->
+    <section class="bento-sandbox-grid">
+      
+      <!-- What-If Price Elasticity Sandbox -->
+      <div class="bento-card">
+        <div class="card-header-clean">
+          <div class="card-title-group">
+            <span class="card-icon-bubble">🎯</span>
+            <div>
+              <div class="card-title">What-If Price Elasticity &amp; Demand Lift Sandbox</div>
+              <div class="card-subtitle">Evaluate margin variance and supply chain exhaustion before launching promotions</div>
+            </div>
           </div>
         </div>
 
-        <div class="control-group">
-          <label class="control-label" for="simDurationSelect">Simulation Window</label>
-          <select id="simDurationSelect" class="sim-input">
-            <option value="7">7 Days</option>
-            <option value="14" selected>14 Days (Standard Sprint)</option>
-            <option value="30">30 Days (Full Month)</option>
-          </select>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <div style="flex: 1;">
+            <label class="form-label" for="simSkuSelect">Select Target SKU</label>
+            <select id="simSkuSelect" class="store-selector" style="width: 100%;">
+              <option value="SKU_1001">SKU_1001 — Classic White Bread 400g (Bakery)</option>
+              <option value="SKU_1002">SKU_1002 — Whole Wheat Loaf 400g (Bakery)</option>
+              <option value="SKU_1005">SKU_1005 — Pasture Raised Milk 105g (Dairy)</option>
+              <option value="SKU_1004">SKU_1004 — Stone-Ground Sauce 104g (Pantry)</option>
+            </select>
+          </div>
+          <div style="width: 130px;">
+            <label class="form-label" for="simDurationSelect">Duration</label>
+            <select id="simDurationSelect" class="store-selector" style="width: 100%;">
+              <option value="7">7 Days</option>
+              <option value="14" selected>14 Days</option>
+              <option value="30">30 Days</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="slider-container">
+          <div class="slider-labels">
+            <span>Discount Rate</span>
+            <span id="sliderDiscountLabel" style="font-weight: 800; color: var(--color-primary);">15%</span>
+          </div>
+          <input type="range" id="simDiscountSlider" class="sim-slider" min="5" max="35" step="5" value="15">
+        </div>
+
+        <!-- Simulation Result Metrics -->
+        <div class="sim-stat-row">
+          <div class="sim-stat-box">
+            <span class="sim-stat-label">Projected Demand</span>
+            <div class="sim-stat-val" id="simDemandVal">+0 units</div>
+          </div>
+          <div class="sim-stat-box">
+            <span class="sim-stat-label">Gross Margin Lift</span>
+            <div class="sim-stat-val" id="simMarginVal">+0.0%</div>
+          </div>
+          <div class="sim-stat-box">
+            <span class="sim-stat-label">Net Profit Variance</span>
+            <div class="sim-stat-val" id="simProfitVal">+$0.00</div>
+          </div>
+        </div>
+
+        <!-- Supply Chain Risk Banner -->
+        <div id="simRiskBanner" class="risk-banner risk-low">
+          <span>🛡️</span>
+          <span id="simRiskText">Supply chain runway remains safe during promotional window.</span>
         </div>
       </div>
 
-      <!-- Simulation Output Cards -->
-      <div class="sim-results-grid">
-        <div class="sim-stat-box">
-          <span class="sim-stat-label">Retail Price</span>
-          <span class="sim-stat-val"><s id="simBasePrice" style="color: var(--text-dim); font-size: 0.95rem;">$--</s> &rarr; <span id="simNewPrice" style="color: var(--accent-cyan);">$0.00</span></span>
+      <!-- Multi-Store Arbitrage & Rebalance Matrix -->
+      <div class="bento-card">
+        <div class="card-header-clean">
+          <div class="card-title-group">
+            <span class="card-icon-bubble">🌐</span>
+            <div>
+              <div class="card-title">Inter-Store Rebalance &amp; Performance Matrix</div>
+              <div class="card-subtitle">Intra-network transfer lanes and courier logistics</div>
+            </div>
+          </div>
         </div>
 
-        <div class="sim-stat-box">
-          <span class="sim-stat-label">Projected Demand Lift</span>
-          <span class="sim-stat-val" id="simDemandLift" style="color: var(--accent-emerald);">+0%</span>
-          <span class="score-sub" id="simNewVelocity">0 u/day</span>
-        </div>
-
-        <div class="sim-stat-box">
-          <span class="sim-stat-label">Runway to Clear</span>
-          <span class="sim-stat-val" id="simRunwayDays">0 days</span>
-          <span class="score-sub" id="simOldRunway">vs 0 days baseline</span>
-        </div>
-
-        <div class="sim-stat-box">
-          <span class="sim-stat-label">Gross Profit Delta</span>
-          <span class="sim-stat-val" id="simProfitDelta">+$0.00</span>
-          <span class="score-sub">Net financial variance</span>
-        </div>
-
-        <div class="sim-stat-box">
-          <span class="sim-stat-label">Revenue Impact</span>
-          <span class="sim-stat-val" id="simRevenueDelta">+$0.00</span>
-          <span class="score-sub">Topline sales shift</span>
+        <div id="rebalanceMatrixContainer" style="min-height: 260px;">
+          <!-- Populated by JavaScript -->
         </div>
       </div>
 
-      <!-- Supply Chain Risk Banner -->
-      <div id="simRiskBanner" class="risk-banner risk-low">
-        <span>🛡️</span>
-        <span>Evaluating supply chain exhaustion risk...</span>
-      </div>
     </section>
-
   </main>
 
-  <!-- Toast Container -->
+  <!-- ========================================================================
+       API Key Management Modal
+       ======================================================================== -->
+  <div id="apiKeyModal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="card-title-group">
+          <span class="card-icon-bubble">🔑</span>
+          <div>
+            <div class="modal-title">Gemini API Key Configuration</div>
+            <div class="card-subtitle">Configure Google Gemini AI for conversational copilot reasoning</div>
+          </div>
+        </div>
+        <button id="btnCloseApiKeyModal" class="btn-close-modal">✕</button>
+      </div>
+
+      <div style="background: var(--bg-surface-secondary); padding: 1rem; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-bottom: 1.25rem; font-size: 0.85rem; color: var(--text-secondary);">
+        <strong>Current Status:</strong> <span id="modalCurrentKeyPreview" style="font-family: monospace; font-weight: 700; color: var(--color-primary);">Checking...</span>
+        <p style="margin-top: 0.35rem;">
+          If no key is configured, KinetiQ automatically runs in 100% deterministic local mode with zero API dependencies.
+        </p>
+      </div>
+
+      <form id="apiKeyForm" onsubmit="handleApiKeySubmit(event)">
+        <div class="form-group">
+          <label class="form-label" for="inputApiKey">Google Gemini API Key</label>
+          <input type="password" id="inputApiKey" class="form-input" placeholder="AIzaSy..." autocomplete="off">
+        </div>
+        <div style="display: flex; gap: 0.75rem; justify-content: flex-end; margin-top: 1.5rem;">
+          <button type="button" id="btnTestAiConnection" class="btn-header" onclick="testAiConnection()">
+            <span>⚡</span> Test AI Connection
+          </button>
+          <button type="submit" class="btn-primary">
+            <span>Save Key</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Real-Time Toast Container -->
   <div id="toastContainer" class="toast-container"></div>
 
-  <script src="/static/app.js"></script>
+  <!-- Client Application Controller -->
+  <script src="/static/app.js?v=2.1"></script>
 </body>
 </html>
