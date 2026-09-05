@@ -110,6 +110,11 @@ KinetiQ is configured for turnkey deployment to Vercel Serverless Functions and 
 2. **Environment Variables**:
    - `GEMINI_API_KEY`: *(Optional)* Your Google Gemini API Key. If omitted, KinetiQ automatically runs in deterministic grounded mode.
 3. **Deploy**: Click **Deploy**. Vercel detects `vercel.json`, `api/index.py`, and `public/` assets automatically.
+4. **Custom Domain (`KinetiQ.com`)**:
+   - In Vercel Project Settings ➔ **Domains**, add `kinetiq.com` and `www.kinetiq.com`.
+   - In your DNS provider (e.g. GoDaddy, Namecheap, Cloudflare), configure:
+     - **Apex (`@`)**: `A` Record ➔ `76.76.21.21`
+     - **Subdomain (`www`)**: `CNAME` Record ➔ `cname.vercel-dns.com`
 
 ---
 
