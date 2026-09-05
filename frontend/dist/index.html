@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KinetiQ — Retail Sales & Inventory Copilot</title>
+  <link rel="stylesheet" href="/static/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="app-header">
+    <div class="brand-container">
+      <div class="brand-logo">KQ</div>
+      <div>
+        <div class="brand-title">KinetiQ</div>
+        <div class="brand-subtitle">Retail Sales &amp; Inventory Copilot</div>
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <select id="storeSelect" class="store-selector" title="Select Retail Store">
+        <option value="STORE_01">STORE_01 — Downtown Metro Express</option>
+        <option value="STORE_02">STORE_02 — Westside Suburban Supercenter</option>
+        <option value="STORE_03">STORE_03 — North Corridor Highway Hub</option>
+      </select>
+
+      <div class="status-badge" title="Backend Connection Live">
+        <span class="status-dot"></span>
+        <span>Online</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="main-container">
+
+    <!-- 3-Minute Executive Scorecard -->
+    <section class="scorecard-grid">
+      <div class="score-card">
+        <div class="score-label">
+          <span>Store Health</span>
+          <span id="scoreDate">Today</span>
+        </div>
+        <div class="score-value" id="healthScore">--/100</div>
+        <div class="score-sub">Managed by <span id="managerName">Rajesh Sharma</span></div>
+      </div>
+
+      <div class="score-card">
+        <div class="score-label">Active SKUs</div>
+        <div class="score-value" id="statActiveSkus">250</div>
+        <div class="score-sub" id="statHealthySkus">225 healthy</div>
+      </div>
+
+      <div class="score-card">
+        <div class="score-label">Imminent Stockouts</div>
+        <div class="score-value" id="statStockouts" style="color: var(--accent-rose);">--</div>
+        <div class="score-sub" id="statStockoutsLoss">$-- at risk</div>
+      </div>
+
+      <div class="score-card">
+        <div class="score-label">Dead Capital</div>
+        <div class="score-value" id="statDeadStock" style="color: var(--accent-amber);">--</div>
+        <div class="score-sub" id="statDeadCapital">$-- locked</div>
+      </div>
+
+      <div class="score-card">
+        <div class="score-label">Network Arbitrage</div>
+        <div class="score-value" id="statTransfers" style="color: var(--accent-emerald);">--</div>
+        <div class="score-sub" id="statAnomalies">-- anomalies flagged</div>
+      </div>
+    </section>
+
+    <!-- Operational Split Workspace -->
+    <section class="workspace-grid">
+
+      <!-- Left Column: Daily 3-Minute Action Queue -->
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>⚡</span>
+            <span>Daily Action Queue</span>
+          </div>
+
+          <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="stockouts">Stockouts</button>
+            <button class="tab-btn" data-tab="deadstock">Dead Capital</button>
+            <button class="tab-btn" data-tab="anomalies">Anomalies</button>
+            <button class="tab-btn" data-tab="transfers">Transfers</button>
+          </nav>
+        </div>
+
+        <div class="panel-content" id="queueContainer">
+          <!-- Populated dynamically by app.js -->
+        </div>
+      </div>
+
+      <!-- Right Column: Conversational Copilot -->
+      <div class="panel chat-container">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>💬</span>
+            <span>Copilot Assistant</span>
+          </div>
+          <span style="font-size: 0.75rem; color: var(--text-dim);">Deterministic &bull; Zero Hallucination</span>
+        </div>
+
+        <div class="chat-history" id="chatHistory">
+          <div class="chat-msg copilot">
+            <div class="msg-bubble">
+              <h3>👋 Good morning! Ready for your 3-minute morning triage.</h3>
+              <p>I have analyzed POS transactions, stock balances, and supplier lead times across Stores 1, 2, and 3.</p>
+              <br>
+              <p>You can ask me about stockout risks, stagnant dead stock, velocity anomalies, or click any quick prompt below:</p>
+            </div>
+            <div class="msg-source-tag">⚡ Verified Source: Deterministic Analytics Kernel</div>
+          </div>
+        </div>
+
+        <!-- Quick Prompt Chips -->
+        <div class="chips-container">
+          <button class="chip-btn" data-prompt="What items are facing imminent stockout this week?">⚠️ What's running out?</button>
+          <button class="chip-btn" data-prompt="Show me stagnant inventory and dead capital holding costs.">📦 Dead capital analysis</button>
+          <button class="chip-btn" data-prompt="Can we rebalance inventory from other stores?">🔄 Check transfers</button>
+          <button class="chip-btn" data-prompt="Compare Classic White Bread performance with Whole Wheat Bread.">📊 Compare breads</button>
+          <button class="chip-btn" data-prompt="Why did customer footfall drop yesterday due to the rain?">🌧️ Footfall check (Refusal demo)</button>
+        </div>
+
+        <!-- Chat Input Bar -->
+        <form class="chat-input-bar" id="chatForm">
+          <input type="text" id="chatInput" class="chat-input" placeholder="Ask anything about inventory, sales, suppliers, or arbitrage..." autocomplete="off">
+          <button type="submit" class="chat-send-btn">Send</button>
+        </form>
+      </div>
+
+    </section>
+
+    <!-- Bottom Panel: Interactive What-If Simulation Sandbox -->
+    <section class="simulator-panel" id="simulatorSection">
+      <div class="panel-title">
+        <span>🧪</span>
+        <span>Interactive What-If Simulation Sandbox</span>
+      </div>
+
+      <div class="sim-controls">
+        <div class="control-group">
+          <label class="control-label" for="simSkuSelect">Select Target SKU</label>
+          <select id="simSkuSelect" class="sim-input"></select>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">Clearance Markdown: <span id="simDiscountVal">20%</span></label>
+          <div class="sim-slider-container">
+            <input type="range" id="simDiscountSlider" class="sim-slider" min="5" max="60" step="5" value="20">
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label" for="simDurationSelect">Simulation Window</label>
+          <select id="simDurationSelect" class="sim-input">
+            <option value="7">7 Days</option>
+            <option value="14" selected>14 Days (Standard Sprint)</option>
+            <option value="30">30 Days (Full Month)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Simulation Output Cards -->
+      <div class="sim-results-grid">
+        <div class="sim-stat-box">
+          <span class="sim-stat-label">Retail Price</span>
+          <span class="sim-stat-val"><s id="simBasePrice" style="color: var(--text-dim); font-size: 0.95rem;">$--</s> &rarr; <span id="simNewPrice" style="color: var(--accent-cyan);">$0.00</span></span>
+        </div>
+
+        <div class="sim-stat-box">
+          <span class="sim-stat-label">Projected Demand Lift</span>
+          <span class="sim-stat-val" id="simDemandLift" style="color: var(--accent-emerald);">+0%</span>
+          <span class="score-sub" id="simNewVelocity">0 u/day</span>
+        </div>
+
+        <div class="sim-stat-box">
+          <span class="sim-stat-label">Runway to Clear</span>
+          <span class="sim-stat-val" id="simRunwayDays">0 days</span>
+          <span class="score-sub" id="simOldRunway">vs 0 days baseline</span>
+        </div>
+
+        <div class="sim-stat-box">
+          <span class="sim-stat-label">Gross Profit Delta</span>
+          <span class="sim-stat-val" id="simProfitDelta">+$0.00</span>
+          <span class="score-sub">Net financial variance</span>
+        </div>
+
+        <div class="sim-stat-box">
+          <span class="sim-stat-label">Revenue Impact</span>
+          <span class="sim-stat-val" id="simRevenueDelta">+$0.00</span>
+          <span class="score-sub">Topline sales shift</span>
+        </div>
+      </div>
+
+      <!-- Supply Chain Risk Banner -->
+      <div id="simRiskBanner" class="risk-banner risk-low">
+        <span>🛡️</span>
+        <span>Evaluating supply chain exhaustion risk...</span>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
