@@ -16,7 +16,6 @@
 
 - **Live Web Application**: [https://kineti-q-xi.vercel.app/](https://kineti-q-xi.vercel.app/)
 - **GitHub Repository**: [https://github.com/TinFox213/KinetiQ.git](https://github.com/TinFox213/KinetiQ.git)
-- **Target Custom Domain**: `KinetiQ.com`
 
 ---
 
